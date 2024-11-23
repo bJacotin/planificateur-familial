@@ -1,21 +1,25 @@
 import React from 'react'
-import {StyleSheet, View,Text } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
+import {StyleSheet, View, Text, Image} from "react-native";
+
 type Props = {
-    text : string
-}
-const Task = ({text}: Props) => {
+    text: string;
+    isChecked: boolean;
+};
+
+const Task = ({ text, isChecked }: Props) => {
     return (
         <View style = {styles.taskContainer}>
             <View style = {styles.leftContainer}>
-                <LinearGradient
-                    colors={['#C153F8', '#E15D5A']} // Dégradé
-                    style={styles.button}
-                    start={{ x: 1, y: -0.2 }}
-                    end={{ x: 0, y: 1 }}
-                >
-                    <View style={styles.centerButton}></View>
-                </LinearGradient>
+                <Image
+                    style={styles.checkButton}
+                    source={
+                        isChecked
+                            ? require("@/assets/images/checkedCircle.png")
+                            : require("@/assets/images/uncheckedCircle.png")
+                    }
+
+                />
+
                 <Text >{text}</Text>
             </View>
 
@@ -31,7 +35,7 @@ const styles = StyleSheet.create({
         maxWidth:'80%'
     },
     taskContainer: {
-        marginTop:20,
+        marginTop:15,
         backgroundColor: '#FFFFFF',
         height: 60,
         borderBottomRightRadius: 35,
@@ -43,6 +47,8 @@ const styles = StyleSheet.create({
         padding:10,
         elevation:5,
         margin:10,
+        borderWidth:2,
+        borderBottomWidth:5,
 
     },
     button: {
@@ -63,8 +69,13 @@ const styles = StyleSheet.create({
         height:14,
         width:14,
         borderRadius: 7,
+    },
+    checkButton: {
+        width:24,
+        height:24,
+        marginLeft:9,
+        marginRight:10
     }
-
 
     }
 )

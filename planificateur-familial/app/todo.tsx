@@ -7,7 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    ScrollView
+    ScrollView, Button, Touchable
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import {useState,useEffect} from 'react';
@@ -16,21 +16,29 @@ import Task from '@/components/Task';
 import Header from "@/components/Header";
 
 
+type TaskItem = {
+    text: string;
+    isChecked: boolean;
+};
 
 export default function Todo() {
-    const [task, setTask] = useState<string>('');
-    const [taskItems, setTaskItems] = useState<string[]>([]);
+    const [task, setTask] = useState<string>("");
+    const [taskItems, setTaskItems] = useState<TaskItem[]>([]);
+
     const completeTask = (index: number) => {
-        let itemsCopy = [...taskItems];
-        itemsCopy.splice(index,1);
-        setTaskItems(itemsCopy)
-    }
+        const itemsCopy = [...taskItems];
+        itemsCopy[index].isChecked = !itemsCopy[index].isChecked;
+        setTaskItems(itemsCopy);
+    };
 
     const handleAddTask = () => {
-        Keyboard.dismiss();
-        setTaskItems([...taskItems, task])
-        setTask('')
-    }
+        if (task.trim().length > 0) {
+            Keyboard.dismiss();
+            setTaskItems([...taskItems, { text: task, isChecked: false }]);
+            setTask("");
+        }
+    };
+
 
     // Charger les tâches au démarrage de l'application
     useEffect(() => {
@@ -68,7 +76,7 @@ export default function Todo() {
             <View style={styles.container}>
 
                 <LinearGradient
-                    colors={['#C153F8', '#E15D5A']} // Dégradé
+                    colors={['#C153F8', '#E15D5A']}
                     style={styles.mainCard}
                     start={{ x: 1, y: -0.2 }}
                     end={{ x: 0, y: 1 }}
@@ -83,13 +91,15 @@ export default function Todo() {
                         {taskItems.map((item,index) => {
                             return (
                                 <TouchableOpacity key={index} onPress={() => completeTask(index)}>
-                                    <Task text={item}/>
+                                    <Task text={item.text} isChecked={item.isChecked}/>
                                 </TouchableOpacity>
                             )
                         })}
                     </ScrollView>
                 </LinearGradient>
-
+                <TouchableOpacity style={styles.newTaskButton}>
+                    <Text style={styles.buttonLabel}>Nouvelle Tache</Text>
+                </TouchableOpacity>
 
 
                 <View
@@ -124,15 +134,17 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '95%',
         backgroundColor: 'red',
-        marginBottom: 25,
+        marginBottom: 15,
         borderRadius: 30,
         padding:15,
+        elevation:10
     },
 
     container: {
 
         //height:'83%',
         flex:1,
+        paddingTop:20,
         padding: 40,
     },
     titre : {
@@ -155,6 +167,12 @@ const styles = StyleSheet.create({
         borderRadius: 23,
         height:46,
         paddingLeft:20,
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
     },
     addWrapper: {
         height: 46,
@@ -162,7 +180,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         borderRadius: 23,
         alignItems:'center',
-        justifyContent:'center'
+        justifyContent:'center',
+        borderTopRightRadius:35,
+        borderTopLeftRadius:35,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
     },
     addText: {
 
@@ -172,7 +196,7 @@ const styles = StyleSheet.create({
 
     },
     titleContainer: {
-        height:60,
+        height:63,
         width:160,
         backgroundColor:'white',
         borderBottomRightRadius: 35,
@@ -181,6 +205,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius:25,
         display: "flex",
         elevation: 5,
+        borderWidth:2,
+        borderBottomWidth:5,
 
     },
     headerDetails: {
@@ -193,6 +219,28 @@ const styles = StyleSheet.create({
         fontWeight:"500",
         fontSize:24,
         alignSelf:"center"
+    },
+    newTaskButton: {
+
+        alignSelf:"center",
+        display:"none",
+        alignItems:"center",
+        justifyContent:"center",
+        width:150,
+        height:50,
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
+
+
+    },
+    buttonLabel: {
+
+        marginLeft:1,
+        alignSelf:"center",
     }
 });
 
