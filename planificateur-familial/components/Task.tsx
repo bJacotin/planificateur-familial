@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         maxWidth:'80%'
     },
     taskContainer: {
-        marginTop:15,
+        marginTop:8,
         backgroundColor: '#FFFFFF',
         height: 60,
         borderBottomRightRadius: 35,

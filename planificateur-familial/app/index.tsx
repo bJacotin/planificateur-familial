@@ -15,16 +15,8 @@ export default function Index() {
         router.push('/todo');
     };
 
-    useEffect(() => {
-        const loadFonts = async () => {
-            await Font.loadAsync({
-                'Poppins-Regular': require('@/assets/fonts/Poppins-Regular.ttf'),
-            });
 
-        };
 
-        loadFonts()
-    }, []);
 
 
     return (

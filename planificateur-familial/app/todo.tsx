@@ -7,13 +7,14 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    ScrollView, Button, Touchable
+    ScrollView, Button, Touchable, Modal
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import {useState,useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Task from '@/components/Task';
 import Header from "@/components/Header";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 
 type TaskItem = {
@@ -24,7 +25,7 @@ type TaskItem = {
 export default function Todo() {
     const [task, setTask] = useState<string>("");
     const [taskItems, setTaskItems] = useState<TaskItem[]>([]);
-
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
     const completeTask = (index: number) => {
         const itemsCopy = [...taskItems];
         itemsCopy[index].isChecked = !itemsCopy[index].isChecked;
@@ -36,6 +37,7 @@ export default function Todo() {
             Keyboard.dismiss();
             setTaskItems([...taskItems, { text: task, isChecked: false }]);
             setTask("");
+            setModalVisible(false)
         }
     };
 
@@ -80,13 +82,13 @@ export default function Todo() {
                     style={styles.mainCard}
                     start={{ x: 1, y: -0.2 }}
                     end={{ x: 0, y: 1 }}
-                ><View style={styles.cardHeader}>
+                ><View >
                     <View style={styles.titleContainer}>
                         <Text style={styles.headerDetails}>TO DO LIST :</Text>
                         <Text style={styles.title}>Perso</Text>
                     </View>
                 </View>
-                    <ScrollView >
+                    <ScrollView style={{marginTop:6}}>
 
                         {taskItems.map((item,index) => {
                             return (
@@ -97,26 +99,56 @@ export default function Todo() {
                         })}
                     </ScrollView>
                 </LinearGradient>
-                <TouchableOpacity style={styles.newTaskButton}>
+                <TouchableOpacity style={styles.newTaskButton} onPress={() => setModalVisible(true)}>
                     <Text style={styles.buttonLabel}>Nouvelle Tache</Text>
                 </TouchableOpacity>
-
-
-                <View
-
-                    style={styles.writeTaskWrapper}>
-                    <TextInput style={styles.input}
-                               placeholder={'Nouvelle Tache'}
-                               value={task}
-                               onChangeText={text => setTask(text)}/>
-                    <TouchableOpacity onPress={() => handleAddTask()}>
-                        <View style={styles.addWrapper}>
-                            <Text style={styles.addText}>+</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
             </View>
 
+            <Modal // Modalize to avoid keyboard problem
+
+                statusBarTranslucent={true}
+
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)} // Ferme le modal
+            >
+                <View
+                    style={styles.modalContainer}
+
+                >
+                    <LinearGradient
+                        colors={['#C153F8', '#E15D5A']}
+                        style={styles.modalContent}
+                        start={{ x: 1, y: -0.2 }}
+                        end={{ x: 0, y: 1 }}
+                    >
+
+                        <View style={styles.addTaskWrapper}>
+                            <View style={styles.sectionNameContainer}>
+                                <Text style={styles.sectionNameLabel}>Nom de la Tache</Text>
+                            </View>
+                            <TextInput
+
+                                style={styles.modalInput}
+                                placeholder=" |"
+                                value={task}
+                                onChangeText={text => setTask(text)}
+                            />
+                        </View>
+
+
+                        <TouchableOpacity
+                            style={[styles.addTaskButton]}
+                            onPress={handleAddTask}
+                        >
+                            <Text style={styles.addTaskButtonText}>Ajouter la Tache</Text>
+                        </TouchableOpacity>
+
+
+                    </LinearGradient>
+                </View>
+            </Modal>
         </View>
 
 
@@ -130,13 +162,13 @@ const styles = StyleSheet.create({
 
     mainCard: {
         alignSelf: "center",
-
         width: '100%',
         height: '95%',
         backgroundColor: 'red',
         marginBottom: 15,
         borderRadius: 30,
-        padding:15,
+        padding:10,
+
         elevation:10
     },
 
@@ -144,57 +176,17 @@ const styles = StyleSheet.create({
 
         //height:'83%',
         flex:1,
-        paddingTop:20,
+        paddingTop:25,
         padding: 40,
     },
     titre : {
         fontSize: 38,
         fontWeight: "bold"
     },
-    writeTaskWrapper: {
-
-        flexDirection: 'row',
-        justifyContent:'space-around',
-        width:'100%',
-        bottom: 10,
-        left:40,
-        position:'absolute'
-    },
-
-    input: {
-        width: '80%',
-        backgroundColor:'#FFFFFF',
-        borderRadius: 23,
-        height:46,
-        paddingLeft:20,
-        borderTopRightRadius:25,
-        borderTopLeftRadius:25,
-        borderBottomRightRadius:35,
-        borderBottomLeftRadius:35,
-        borderWidth:2,
-        borderBottomWidth:5,
-    },
-    addWrapper: {
-        height: 46,
-        width: 46,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 23,
-        alignItems:'center',
-        justifyContent:'center',
-        borderTopRightRadius:35,
-        borderTopLeftRadius:35,
-        borderBottomRightRadius:35,
-        borderBottomLeftRadius:35,
-        borderWidth:2,
-        borderBottomWidth:5,
-    },
-    addText: {
 
 
-    },
-    cardHeader: {
 
-    },
+
     titleContainer: {
         height:63,
         width:160,
@@ -223,7 +215,7 @@ const styles = StyleSheet.create({
     newTaskButton: {
 
         alignSelf:"center",
-        display:"none",
+        display:"flex",
         alignItems:"center",
         justifyContent:"center",
         width:150,
@@ -241,6 +233,90 @@ const styles = StyleSheet.create({
 
         marginLeft:1,
         alignSelf:"center",
+    },
+    modalContainer: {
+        flex: 1,
+
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    modalContent: {
+        width: '85%',
+
+        borderRadius: 30,
+        paddingTop:20,
+        padding: 10,
+        alignItems: 'center',
+        elevation: 30
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 15
+    },
+    modalInput: {
+        width: '60%',
+        height:55,
+        backgroundColor: 'white',
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
+
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 20
+    },
+
+    addTaskWrapper: {
+        width:'100%',
+        display:"flex",
+        flexDirection:"row",
+        justifyContent:"space-around",
+
+
+    },
+    sectionNameLabel: {
+        marginTop:3,
+        fontFamily:"Poppins_Medium",
+        fontSize : 12,
+        textAlign:"center"
+
+    },
+    sectionNameContainer:{
+        height:55,
+        width:"35%",
+        backgroundColor: 'white',
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
+        display:"flex",
+        alignItems:"center",
+        justifyContent:"center",
+
+    },
+    addTaskButton: {
+        height:50,
+        width:"35%",
+        backgroundColor: 'white',
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
+    },
+    addTaskButtonText: {
+        marginTop:3,
+        fontFamily:"Poppins_Medium",
+        fontSize : 12,
+        textAlign:"center"
     }
 });
 
