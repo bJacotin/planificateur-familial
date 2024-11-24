@@ -8,12 +8,15 @@ import {
     ScrollView,
     Modal,
     TouchableWithoutFeedback,
+    Animated
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
-import {useState,useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Task from '@/components/Task';
 import Header from "@/components/Header";
+
+
 
 
 
@@ -28,10 +31,39 @@ export default function Todo() {
     const [detail, setDetail] = useState<string>("");
     const [taskItems, setTaskItems] = useState<TaskItem[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+    const [cancel,setCancel] = useState<boolean>(false);
+    const cancelRef = useRef(false);
+
+    useEffect(() => {
+        cancelRef.current = cancel;
+    }, [cancel]);
+
     const completeTask = (index: number) => {
         const itemsCopy = [...taskItems];
         itemsCopy[index].isChecked = !itemsCopy[index].isChecked;
         setTaskItems(itemsCopy);
+    };
+
+    const requestDeleteTask = (index: number) => {
+        let itemsCopy = [...taskItems];
+        setCancel(false);
+
+
+        deleteTask(index)
+        console.log("before modal",cancel)
+        setDeleteModalVisible(true);
+        setTimeout(() => {
+            setDeleteModalVisible(false);
+            console.log("before if cancel", cancelRef.current);
+            if (cancelRef.current) {
+                setTaskItems(itemsCopy);
+            }
+            console.log("after if cancel", cancelRef.current);
+            setCancel(false);
+        }, 3000);
+
+
     };
 
     const deleteTask = (index: number) => {
@@ -39,6 +71,13 @@ export default function Todo() {
         itemsCopy.splice(index,1);
         setTaskItems(itemsCopy)
     }
+
+    const handleCancelPress = () => {
+        console.log("cancel clicked",cancel)
+        setCancel(true)
+        console.log("cancel clicked",cancel)
+        setDeleteModalVisible(false)
+    };
 
     const handleAddTask = () => {
         if (task.trim().length > 0) {
@@ -81,6 +120,25 @@ export default function Todo() {
             console.error('Erreur lors de la sauvegarde des tâches', error);
         }
     };
+
+    const progressAnim = useRef(new Animated.Value(100)).current; // Valeur initiale 100%
+
+    useEffect(() => {
+        if (deleteModalVisible) {
+
+            Animated.timing(progressAnim, {
+                toValue: 0,
+                duration: 3000,
+                useNativeDriver: false,
+            }).start(() => {
+
+                setDeleteModalVisible(false);
+            });
+        } else {
+            
+            progressAnim.setValue(100);
+        }
+    }, [deleteModalVisible]);
     return (
         <View style={{flex:1,backgroundColor:'white'}}>
             <Header text={'Votre ToDo'}/>
@@ -103,7 +161,7 @@ export default function Todo() {
                             return (
                                 <TouchableOpacity key={index}
                                                   onPress={() => completeTask(index)}
-                                                  onLongPress={() => deleteTask(index)}>
+                                                  onLongPress={() => requestDeleteTask(index)}>
                                     <Task title={item.title} isChecked={item.isChecked} details={item.details}/>
                                 </TouchableOpacity>
                             )
@@ -115,7 +173,7 @@ export default function Todo() {
                 </TouchableOpacity>
             </View>
 
-            <Modal
+            <Modal // Addtask Modal
                 statusBarTranslucent={true}
                 animationType="fade"
                 transparent={true}
@@ -165,6 +223,54 @@ export default function Todo() {
                     </View>
                 </TouchableWithoutFeedback>
             </Modal>
+
+
+            <Modal //Cancel Modal
+                statusBarTranslucent={true}
+                animationType="slide"
+                transparent={true}
+                visible={deleteModalVisible}
+                onRequestClose={() => setDeleteModalVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setDeleteModalVisible(false)}>
+                    <View style={styles.cancelModalContainer}>
+                        <TouchableWithoutFeedback onPress={() => {}}>
+                            <View
+
+                                style={styles.cancelModalContent}
+
+                            >
+                                <View style={styles.progressBarContainer}>
+                                    <Animated.View
+                                        style={{
+                                            width: progressAnim.interpolate({
+                                                inputRange: [0, 100],
+                                                outputRange: ['0%', '100%'],
+                                            }),
+                                        }}
+                                    >
+                                        <LinearGradient
+                                            colors={['#C153F8', '#E15D5A']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            style={styles.gradientBar}
+                                        />
+                                    </Animated.View>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
+                                    <TouchableOpacity
+                                        style={styles.addTaskButton}
+                                        onPress={() => handleCancelPress()}
+                                    >
+                                        <Text style={[styles.addTaskButtonText,{marginTop:10}]}>Annuler</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
 
         </View>
 
@@ -328,6 +434,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius:35,
         borderWidth:2,
         borderBottomWidth:5,
+
     },
     addTaskButtonText: {
         marginTop:3,
@@ -338,7 +445,33 @@ const styles = StyleSheet.create({
     quitButton: {
         position:"relative",
         start:0
-    }
+    },
+    cancelModalContainer: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0)',
+    },
+    cancelModalContent: {
+        borderWidth:2,
+        backgroundColor:'white',
+        width: '100%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 20,
+    },
+    progressBarContainer: {
+        height: 5,
+        backgroundColor: '#E0E0E0',
+        borderRadius: 5,
+        overflow: 'hidden',
+        marginBottom: 10,
+    },
+    gradientBar: {
+        height: '100%',
+    },
+
+
 });
 
 
