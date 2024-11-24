@@ -7,7 +7,8 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    ScrollView, Button, Touchable, Modal
+    ScrollView, Button, Touchable, Modal,
+    TouchableWithoutFeedback,
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import {useState,useEffect} from 'react';
@@ -90,7 +91,7 @@ export default function Todo() {
                 </View>
                     <ScrollView style={{marginTop:6}}>
 
-                        {taskItems.map((item,index) => {
+                        {taskItems.map((item:TaskItem,index) => {
                             return (
                                 <TouchableOpacity key={index} onPress={() => completeTask(index)}>
                                     <Task text={item.text} isChecked={item.isChecked}/>
@@ -99,56 +100,51 @@ export default function Todo() {
                         })}
                     </ScrollView>
                 </LinearGradient>
-                <TouchableOpacity style={styles.newTaskButton} onPress={() => setModalVisible(true)}>
+                <TouchableOpacity style={styles.newTaskButton} onPress={():void => setModalVisible(true)}>
                     <Text style={styles.buttonLabel}>Nouvelle Tache</Text>
                 </TouchableOpacity>
             </View>
 
-            <Modal // Modalize to avoid keyboard problem
-
+            <Modal
                 statusBarTranslucent={true}
-
                 animationType="fade"
                 transparent={true}
                 visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)} // Ferme le modal
+                onRequestClose={() => setModalVisible(false)}
             >
-                <View
-                    style={styles.modalContainer}
+                <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                    <View style={styles.modalContainer}>
+                        <TouchableWithoutFeedback onPress={() => {}}>
+                            <LinearGradient
+                                colors={['#C153F8', '#E15D5A']}
+                                style={styles.modalContent}
+                                start={{ x: 1, y: -0.2 }}
+                                end={{ x: 0, y: 1 }}
+                            >
+                                <View style={styles.addTaskWrapper}>
+                                    <View style={styles.sectionNameContainer}>
+                                        <Text style={styles.sectionNameLabel}>Nom de la Tâche</Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.modalInput}
+                                        placeholder=" |"
+                                        value={task}
+                                        onChangeText={text => setTask(text)}
+                                    />
+                                </View>
 
-                >
-                    <LinearGradient
-                        colors={['#C153F8', '#E15D5A']}
-                        style={styles.modalContent}
-                        start={{ x: 1, y: -0.2 }}
-                        end={{ x: 0, y: 1 }}
-                    >
-
-                        <View style={styles.addTaskWrapper}>
-                            <View style={styles.sectionNameContainer}>
-                                <Text style={styles.sectionNameLabel}>Nom de la Tache</Text>
-                            </View>
-                            <TextInput
-
-                                style={styles.modalInput}
-                                placeholder=" |"
-                                value={task}
-                                onChangeText={text => setTask(text)}
-                            />
-                        </View>
-
-
-                        <TouchableOpacity
-                            style={[styles.addTaskButton]}
-                            onPress={handleAddTask}
-                        >
-                            <Text style={styles.addTaskButtonText}>Ajouter la Tache</Text>
-                        </TouchableOpacity>
-
-
-                    </LinearGradient>
-                </View>
+                                <TouchableOpacity
+                                    style={[styles.addTaskButton]}
+                                    onPress={handleAddTask}
+                                >
+                                    <Text style={styles.addTaskButtonText}>Ajouter la Tâche</Text>
+                                </TouchableOpacity>
+                            </LinearGradient>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
             </Modal>
+
         </View>
 
 
@@ -317,6 +313,10 @@ const styles = StyleSheet.create({
         fontFamily:"Poppins_Medium",
         fontSize : 12,
         textAlign:"center"
+    },
+    quitButton: {
+        position:"relative",
+        start:0
     }
 });
 
