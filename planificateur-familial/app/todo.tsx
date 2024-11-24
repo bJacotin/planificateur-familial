@@ -1,13 +1,12 @@
 import {
     Keyboard,
-    KeyboardAvoidingView,
-    Platform,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
-    ScrollView, Button, Touchable, Modal,
+    ScrollView,
+    Modal,
     TouchableWithoutFeedback,
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,16 +14,18 @@ import {useState,useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Task from '@/components/Task';
 import Header from "@/components/Header";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
 
 
 type TaskItem = {
-    text: string;
+    title: string;
     isChecked: boolean;
+    details: string;
 };
 
 export default function Todo() {
     const [task, setTask] = useState<string>("");
+    const [detail, setDetail] = useState<string>("");
     const [taskItems, setTaskItems] = useState<TaskItem[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const completeTask = (index: number) => {
@@ -33,11 +34,18 @@ export default function Todo() {
         setTaskItems(itemsCopy);
     };
 
+    const deleteTask = (index: number) => {
+        let itemsCopy = [...taskItems];
+        itemsCopy.splice(index,1);
+        setTaskItems(itemsCopy)
+    }
+
     const handleAddTask = () => {
         if (task.trim().length > 0) {
             Keyboard.dismiss();
-            setTaskItems([...taskItems, { text: task, isChecked: false }]);
+            setTaskItems([...taskItems, { title: task, isChecked: false, details: detail }]);
             setTask("");
+            setDetail("");
             setModalVisible(false)
         }
     };
@@ -93,15 +101,17 @@ export default function Todo() {
 
                         {taskItems.map((item:TaskItem,index) => {
                             return (
-                                <TouchableOpacity key={index} onPress={() => completeTask(index)}>
-                                    <Task text={item.text} isChecked={item.isChecked}/>
+                                <TouchableOpacity key={index}
+                                                  onPress={() => completeTask(index)}
+                                                  onLongPress={() => deleteTask(index)}>
+                                    <Task title={item.title} isChecked={item.isChecked} details={item.details}/>
                                 </TouchableOpacity>
                             )
                         })}
                     </ScrollView>
                 </LinearGradient>
                 <TouchableOpacity style={styles.newTaskButton} onPress={():void => setModalVisible(true)}>
-                    <Text style={styles.buttonLabel}>Nouvelle Tache</Text>
+                    <Text style={styles.buttonLabel}>Nouvelle Tâche</Text>
                 </TouchableOpacity>
             </View>
 
@@ -130,6 +140,17 @@ export default function Todo() {
                                         placeholder=" |"
                                         value={task}
                                         onChangeText={text => setTask(text)}
+                                    />
+                                </View>
+                                <View style={styles.addTaskWrapper}>
+                                    <View style={styles.sectionNameContainer}>
+                                        <Text style={styles.sectionNameLabel}>Description</Text>
+                                    </View>
+                                    <TextInput
+                                        style={styles.modalInput}
+                                        placeholder=" |"
+                                        value={detail}
+                                        onChangeText={detail => setDetail(detail)}
                                     />
                                 </View>
 

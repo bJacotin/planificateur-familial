@@ -2,11 +2,12 @@ import React from 'react'
 import {StyleSheet, View, Text, Image} from "react-native";
 
 type Props = {
-    text: string;
+    title: string;
     isChecked: boolean;
+    details: string;
 };
 
-const Task = ({ text, isChecked }: Props) => {
+const Task = ({ title, isChecked, details }: Props) => {
     return (
         <View style = {styles.taskContainer}>
             <View style = {styles.leftContainer}>
@@ -19,8 +20,15 @@ const Task = ({ text, isChecked }: Props) => {
                     }
 
                 />
+                <View style={styles.taskDataContainer}>
+                    <Text numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={styles.title}>{title}</Text>
+                    <Text numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={styles.details}>{details}</Text>
+                </View>
 
-                <Text >{text}</Text>
             </View>
 
         </View>
@@ -75,7 +83,31 @@ const styles = StyleSheet.create({
         height:24,
         marginLeft:9,
         marginRight:10
+    },
+    title: {
+        marginTop:4,
+        fontFamily:"Poppins_Medium",
+        fontSize : 14,
+        textAlign:"left",
+        //backgroundColor:"red",
+        height:22
+
+    },
+    details: {
+        marginLeft:10,
+        fontFamily:"Poppins_Regular",
+        fontSize : 10,
+        textAlign:"left",
+        color:"grey",
+
+        //backgroundColor:"green"
+    },
+    taskDataContainer: {
+        alignItems:"flex-start",
+
+        //backgroundColor:"yellow"
     }
+
 
     }
 )
