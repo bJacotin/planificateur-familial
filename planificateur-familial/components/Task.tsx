@@ -1,111 +1,91 @@
-import React from 'react'
-import {StyleSheet, View, Text, Image} from "react-native";
+
+import {StyleSheet, View, Text, Image, Dimensions} from "react-native";
 
 type Props = {
     title: string;
     isChecked: boolean;
-    details: string;
+    description: string;
+    creationDate: Date|null;
+    endingDate : Date|null;
+    favorite : boolean;
+    priority: number;
 };
-
-const Task = ({ title, isChecked, details }: Props) => {
+const Task = ({ title, isChecked, description,creationDate, endingDate,favorite,priority }: Props) => {
+    let displayDate = '';
+    if (endingDate) {
+        const day = endingDate.getDate().toString().padStart(2, '0');
+        const month = (endingDate.getMonth() + 1).toString().padStart(2, '0');
+        const year = endingDate.getFullYear();
+        displayDate = `${day}/${month}/${year}`;
+    }
     return (
         <View style = {styles.taskContainer}>
-            <View style = {styles.leftContainer}>
-                <Image
-                    style={styles.checkButton}
-                    source={
-                        isChecked
-                            ? require("@/assets/images/checkedCircle.png")
-                            : require("@/assets/images/uncheckedCircle.png")
-                    }
+            <Image
+                style={styles.checkButton}
+                source={
+                   isChecked ? require("@/assets/images/checkedCircle.png") : require("@/assets/images/uncheckedCircle.png")}
+            />
+            <Text ellipsizeMode="tail" numberOfLines={1} style={styles.title}>{title}</Text>
 
-                />
-                <View style={styles.taskDataContainer}>
-                    <Text numberOfLines={1}
-                          ellipsizeMode="tail"
-                          style={styles.title}>{title}</Text>
-                    <Text numberOfLines={1}
-                          ellipsizeMode="tail"
-                          style={styles.details}>{details}</Text>
-                </View>
+            <Image source={favorite ? require("@/assets/images/star.png"): null} style={styles.star}></Image>
 
-            </View>
+            <Text style={styles.date}>{displayDate}</Text>
 
         </View>
     )
 }
-
+const screenWidth = Dimensions.get('window').width;
+const screenHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
 
-    leftContainer: {
-        flexDirection: "row",
-        alignItems: 'center',
-        maxWidth:'80%'
-    },
+
     taskContainer: {
         marginTop:8,
         backgroundColor: '#FFFFFF',
-        height: 60,
+        height: 63,
+        width:screenWidth*0.80,
+        alignSelf:"center",
         borderBottomRightRadius: 35,
         borderBottomLeftRadius: 35,
         borderTopLeftRadius:25,
         borderTopRightRadius:25,
         flexDirection:"row",
-        justifyContent: 'space-between',
-        padding:10,
-        elevation:5,
+
+        elevation:6,
         margin:10,
         borderWidth:2,
         borderBottomWidth:5,
 
     },
-    button: {
-
-        height:20,
-        width:20,
-        borderRadius: 14,
-        marginLeft:10,
-        marginRight:10,
-        display:"flex",
-        alignItems:"center",
-        justifyContent:"center"
-    },
-
-    centerButton : {
-
-        backgroundColor:'white',
-        height:14,
-        width:14,
-        borderRadius: 7,
-    },
     checkButton: {
-        width:24,
-        height:24,
-        marginLeft:9,
-        marginRight:10
+        width:26,
+        height:26,
+        marginLeft:19,
+        marginRight:10,
+
+        alignSelf:"center"
     },
     title: {
-        marginTop:4,
+        marginTop:6,
         fontFamily:"Poppins_Medium",
         fontSize : 14,
         textAlign:"left",
-        //backgroundColor:"red",
-        height:22
+        width:screenWidth*0.50,
+        height:30
+
+
 
     },
-    details: {
+
+    star:{
+        marginTop:4,
         marginLeft:10,
-        fontFamily:"Poppins_Regular",
-        fontSize : 10,
-        textAlign:"left",
-        color:"grey",
-
-        //backgroundColor:"green"
-    },
-    taskDataContainer: {
-        alignItems:"flex-start",
-
-        //backgroundColor:"yellow"
+        width:24,
+        height:24
+    }, date:{
+        position:"absolute",
+        bottom:4,
+        right:26
     }
 
 

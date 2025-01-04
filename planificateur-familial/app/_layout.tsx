@@ -1,6 +1,6 @@
 import {SplashScreen, Stack} from "expo-router";
 import { useFonts } from '@expo-google-fonts/poppins';
-import {StatusBar} from "expo-status-bar";
+
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({

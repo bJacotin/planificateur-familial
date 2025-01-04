@@ -1,8 +1,5 @@
 import {Text, View} from "react-native";
-import * as Font from 'expo-font';
-import {useEffect,} from "react";
 import IndexTabBar from '@/components/IndexTabBar';
-import Header from '@/components/Header'
 import { useRouter } from 'expo-router';
 import {StatusBar} from "expo-status-bar";
 

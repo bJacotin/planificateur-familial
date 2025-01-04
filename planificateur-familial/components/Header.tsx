@@ -9,7 +9,7 @@ type Props = {
 const Header = ({text} :Props ) => {
     const router = useRouter();
     return (
-        <TouchableOpacity style={styles.header} onPress={() =>router.push('/')} > // refer to index /
+        <TouchableOpacity style={styles.header} onPress={() =>router.push('/')} >
             <LinearGradient
                 colors={['#C153F8', '#E15D5A']} // Dégradé
                 style={styles.buttonWrap}
