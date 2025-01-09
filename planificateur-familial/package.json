@@ -32,15 +32,12 @@
     "expo-splash-screen": "~0.29.7",
     "expo-status-bar": "~2.0.0",
     "expo-symbols": "~0.2.0",
-<<<<<<< Updated upstream
-    "expo-system-ui": "~4.0.2",
-    "expo-web-browser": "~14.0.0",
-=======
+
     "expo-system-ui": "~4.0.6",
     "expo-web-browser": "~14.0.1",
     "firebase": "^11.1.0",
     "metro-config": "^0.81.0",
->>>>>>> Stashed changes
+    
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.1",
