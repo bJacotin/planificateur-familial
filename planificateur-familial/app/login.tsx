@@ -1,32 +1,34 @@
 import Header from '@/components/Header';
-import IndexTabBar from '@/components/IndexTabBar';
+
 import { FIREBASE_AUTH } from '@/FirebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from '@firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendEmailVerification
+} from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
-import { sendPasswordResetEmail } from '@firebase/auth';
-
-
-
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const Login = () => {
 
+
   React.useEffect(() => {
     if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#FED77C'); // Barre de navigation transparente
-      NavigationBar.setButtonStyleAsync('light'); // Icônes en blanc
+      NavigationBar.setBackgroundColorAsync('#FED77C');
+      NavigationBar.setButtonStyleAsync('light');
     }
   }, []);
   
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
+
   const auth = FIREBASE_AUTH;
 
   const signIn = async () => {
@@ -45,7 +47,7 @@ const Login = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
-        await sendEmailVerification(auth.currentUser);  // Envoi l'email de confirmation
+        await sendEmailVerification(auth.currentUser);
       }
     } catch (error) {
       console.error(error);
@@ -102,7 +104,7 @@ const Login = () => {
             <TextInput
               style={styles.fieldText}
               placeholder="Email"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
               value={email}
               autoCapitalize='none'
               onChangeText={(text) => setEmail(text)}
@@ -112,7 +114,7 @@ const Login = () => {
           <View style={styles.fieldWrapper}>
             <TextInput
               placeholder="Mot de passe"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
               style={styles.fieldText}
               value={password}
               secureTextEntry={true}
@@ -168,8 +170,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 35,
     backgroundColor: '#3FC3DD',
     margin: ScreenWidth * 0.025,
-    elevation: 5,  // Ombre pour Android
-    overflow: 'hidden',  // Force l'ombre à suivre le borderRadius
+    elevation: 5,
+    overflow: 'hidden',
   },
   button: {
     alignSelf: "center",
@@ -216,17 +218,17 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
     elevation: 4,
     marginTop: ScreenHeight * 0.10,
-    zIndex: 4, // Assurez-vous que la flèche est au-dessus de nuage1
+    zIndex: 4,
   },
   underlineContainer: {
     alignSelf: 'flex-end',
-    borderBottomWidth: 1,  // Crée un underline
+    borderBottomWidth: 1,
     borderBottomColor: 'white',
-    width: 'auto',  // La largeur s'adapte au texte
-    paddingBottom: 1,  // Espace entre le texte et le underline
-    marginRight: ScreenWidth * 0.14,  // Marge à droite
-    marginBottom: 42,  // Marge en bas
-    marginTop: 10,  // Marge en haut
+    width: 'auto',
+    paddingBottom: 1,
+    marginRight: ScreenWidth * 0.14,
+    marginBottom: 42,
+    marginTop: 10,
   },
 
 
