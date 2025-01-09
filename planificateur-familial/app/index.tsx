@@ -11,7 +11,7 @@ import {
     View
 } from "react-native";
 
-import { useRouter, RelativePathString, ExternalPathString } from 'expo-router';
+import { useRouter, RelativePathString} from 'expo-router';
 import {StatusBar} from "expo-status-bar";
 import React, {useEffect, useState} from "react";
 import * as NavigationBar from "expo-navigation-bar";
@@ -37,7 +37,6 @@ export default function Index() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
             if (user) {
-
                 console.log('utilisateur connecté, reste sur Index');
             } else {
                 router.push('/login' as RelativePathString);
@@ -65,7 +64,6 @@ export default function Index() {
             <View style={styles.content}>
                 <Text style={styles.hello}>Bonjour, {name} !</Text>
             </View>
-
         </ScrollView>
     );
 }
