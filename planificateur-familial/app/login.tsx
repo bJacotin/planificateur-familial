@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RelativePathString, router } from 'expo-router';
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
 import {doc, setDoc, updateDoc} from "@firebase/firestore";
@@ -26,10 +26,9 @@ const Login = () => {
     }
   }, []);
   
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
 
   const handleForgotPasswordClick = () => {
@@ -44,6 +43,7 @@ const Login = () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      router.push('/' as RelativePathString)
     } catch (error) {
       console.error(error);
     } finally {
@@ -84,18 +84,7 @@ const Login = () => {
         end={{ x: 0.5, y: 1 }}
         style={styles.mainContainer}
       >
-        <TouchableOpacity onPress={() => router.push('/')} style={[{zIndex: 4}, {position:'absolute'}]} > {/* refer to index / */}
-          <LinearGradient 
-            colors={['#4FE2FF', '#4FE2FF']} // Dégradé
-            style={styles.buttonWrap}
-            start={{ x: 1, y: -0.2 }}
-            end={{ x: 0, y: 1 }
-            }
-            
-          >
-            <Image source={require("@/assets/images/arrowLeft.png")}  />
-          </LinearGradient>
-        </TouchableOpacity>
+        
 
         <View style={styles.container}>
           <View style={[styles.fieldWrapper, { marginTop: ScreenHeight*0.27 }] }>
