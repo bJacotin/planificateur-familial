@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {RelativePathString, useRouter} from "expo-router";
 import {onAuthStateChanged} from "firebase/auth";
-import {FIREBASE_AUTH} from "@/FirebaseConfig";
+import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {
     Image,
     Platform,
@@ -11,25 +11,52 @@ import {
     TouchableOpacity,
     View,
     StatusBar,
-    Dimensions
+    Dimensions, Button, PermissionsAndroid
 } from "react-native";
 import * as NavigationBar from "expo-navigation-bar";
 import Header from "@/components/Header";
-import {signOut} from "firebase/auth"
-
-
+import {signOut} from "firebase/auth";
+import { launchImageLibrary } from "react-native-image-picker";
+import firebase from "firebase/compat";
+import firestore = firebase.firestore;
+import * as ImagePicker from "expo-image-picker";
+import {doc, getDoc} from "@firebase/firestore";
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 export default function profile() {
-    const [name,setName] = useState<string>("Jean-Michel")
+    const [name,setName] = useState<string>(FIREBASE_AUTH.currentUser.uid)
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
+    const [user, setUser] = useState<any>(FIREBASE_AUTH);
+    const [loadingUser, setLoadingUser] = useState(true);
+    const [profilePicture, setProfilePicture] = useState<string | null>(null);
+    const userId = user.uid;
+
     useEffect(() => {
         if (Platform.OS === 'android') {
             NavigationBar.setBackgroundColorAsync('#FFD902');
             NavigationBar.setButtonStyleAsync('dark');
         }
     }, []);
-    const profilePicture = '@/assets/images/emptyProfilePicture.png';
 
+    const getName(FIREBASE_AUTH.currentUser.uid )
+
+    const handleChoosePhoto = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: "images",
+            allowsEditing: true,
+            aspect: [3, 3],
+            quality: 0.3,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const { uri } = result.assets[0];
+            setSelectedImage(uri);
+            setProfilePicture(uri);
+        } else {
+            console.log("Image selection cancelled");
+        }
+    };
     const logout = async () => {
         try {
             await signOut(FIREBASE_AUTH);
@@ -39,13 +66,21 @@ export default function profile() {
             console.error("Erreur lors de la déconnexion :", error);
         }
     }
+
+
     return (
         <View style={{backgroundColor:'#FFD902', flex:1}}>
             <StatusBar barStyle="dark-content" backgroundColor="rgba(255, 255, 255, 0)" />
                 <Header text={''}></Header>
-                <Image source={require(profilePicture)} style={styles.profilePicture} ></Image>
+                <Image style={styles.profilePicture} source={
+                    profilePicture
+                        ? { uri: profilePicture }
+                        : require("@/assets/images/emptyProfilePicture.png")
+                }></Image>
+
                 <View style={styles.userDataDisplay}>
                     <Text style={styles.name}> {name}</Text>
+                    <Button title="Choisir une image" onPress={handleChoosePhoto} />
                 </View>
                 <TouchableOpacity style={styles.logout} onPress={logout} >
                     <Text style={styles.logoutText}>Se déconnecter</Text>

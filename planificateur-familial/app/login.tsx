@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 
-import { FIREBASE_AUTH } from '@/FirebaseConfig';
+import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from '@/FirebaseConfig';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -11,6 +11,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
+import {doc, setDoc, updateDoc} from "@firebase/firestore";
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
@@ -47,6 +48,9 @@ const Login = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
+        const docRef = doc(FIREBASE_FIRESTORE,"users", auth.currentUser.uid)
+        await setDoc(docRef,{ email: email , name: 'Axel'})
+
         await sendEmailVerification(auth.currentUser);
       }
     } catch (error) {
