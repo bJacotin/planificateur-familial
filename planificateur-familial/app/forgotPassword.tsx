@@ -3,7 +3,7 @@ import IndexTabBar from '@/components/IndexTabBar';
 import { FIREBASE_AUTH } from '@/FirebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from '@firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
-import { RelativePathString, router } from 'expo-router';
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
@@ -12,57 +12,30 @@ import { sendPasswordResetEmail } from '@firebase/auth';
 
 
 
+
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
-const Login = () => {
-
-  React.useEffect(() => {
-    if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#FED77C'); // Barre de navigation transparente
-      NavigationBar.setButtonStyleAsync('light'); // Icônes en blanc
-    }
-  }, []);
+const ForgotPassword = () => {
+    const [email, setEmail] = React.useState('');
+    const [loading, setLoading] = React.useState(false);
   
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const auth = FIREBASE_AUTH;
-
-  const handleForgotPasswordClick = () => {
-    router.push('/forgotPassword' as RelativePathString);
-  };
-
-  const handleSignupClick = () => {
-    router.push('/signup' as RelativePathString);
-  };
-
-  const signIn = async () => {
-    setLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  
-  
-  const signUp = async () => {
-    setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      if (auth.currentUser) {
-        await sendEmailVerification(auth.currentUser);  // Envoi l'email de confirmation
+    const handleResetPassword = async () => {
+      try {
+        await sendPasswordResetEmail(FIREBASE_AUTH, email);
+        alert('Email de réinitialisation envoyé ! Vérifiez votre boîte de réception.');
+      } catch (error) {
+        console.error(error);
+        alert('Erreur lors de l\'envoi de l\'email : vérifiez l\'adresse saisie.');
       }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+  
+    React.useEffect(() => {
+      if (Platform.OS === 'android') {
+        NavigationBar.setBackgroundColorAsync('#FED77C');
+        NavigationBar.setButtonStyleAsync('light');
+      }
+    }, []);
 
 
 
@@ -78,7 +51,7 @@ const Login = () => {
 
       <View style={styles.imgBulle}>
         <Image source={require('@/assets/images/Rectangle526.png')} style={{zIndex:5  }} />
-        <Text style={[styles.textBulle, {zIndex:8 }]}>Je suis Tukki, votre assistant Famzone !</Text>
+        <Text style={[styles.textBulle, {zIndex:8 }]}>La honte ! T'as oublié ton mot de passe !</Text>
       </View>
 
       
@@ -108,43 +81,25 @@ const Login = () => {
         </TouchableOpacity>
 
         <View style={styles.container}>
-          <View style={[styles.fieldWrapper, { marginTop: ScreenHeight*0.27 }] }>
-            <TextInput
-              style={styles.fieldText}
-              placeholder="Email"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
-              value={email}
-              autoCapitalize='none'
-              onChangeText={(text) => setEmail(text)}
-            />
+          <View style={[styles.fieldWrapper, { marginTop: ScreenHeight*0.13}] }>
+          <TextInput
+            style={styles.fieldText}
+            placeholder="Votre email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+        />
+            
           </View>
 
-          <View style={styles.fieldWrapper}>
-            <TextInput
-              placeholder="Mot de passe"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
-              style={styles.fieldText}
-              value={password}
-              secureTextEntry={true}
-              onChangeText={(text) => setPassword(text)}
-            />
-          </View>
-          <View style={styles.underlineContainer}>
-            <Text style={styles.clickableLink} onPress={handleForgotPasswordClick}>MOT DE PASSE OUBLIÉ ?</Text>
-          </View>
+
+          
           { loading ? <ActivityIndicator size="large" color="#0000ff" /> : <>
-            <TouchableOpacity style={[styles.button, { backgroundColor: '#36B1CA' }]} onPress={signIn}>
-              <Text style={styles.buttonText}>JE ME CONNECTE</Text>
+            <TouchableOpacity style={[styles.button, { backgroundColor: '#36B1CA' }]} onPress={handleResetPassword}>
+              <Text style={styles.buttonText}>RÉINITIALISER LE MOT DE PASSE</Text>
             </TouchableOpacity>
           
-            <TouchableOpacity 
-              style={[styles.button, {backgroundColor:'#3D3D3D'}]} 
-                onPress={
-                handleSignupClick                
-              }
-            >
-              <Text style={styles.buttonText}>JE M'INSCRIS</Text>
-          </TouchableOpacity>
+
           </> }
         </View>
       </LinearGradient>
@@ -153,7 +108,9 @@ const Login = () => {
   );
 };
 
-export default Login;
+
+
+export default ForgotPassword;
 
 const styles = StyleSheet.create({
   fieldText : {
@@ -269,8 +226,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: ScreenHeight * 0.17,
     right: ScreenWidth * 0.1,
-    width: ScreenWidth * 0.6,
-    height: ScreenWidth * 0.24,
+    width: ScreenWidth * 0.58,
+    height: ScreenWidth * 0.23,
   },
   imgTukki: {
     position: 'absolute',
@@ -290,13 +247,13 @@ const styles = StyleSheet.create({
   },
   textBulle: {
     position: 'absolute',
-    top: ScreenWidth * 0.028,
-    left: ScreenWidth * 0.05,
+    top: ScreenWidth * 0.03,
+    left: ScreenWidth * 0.06,
     color: '#42484F',
     fontFamily: 'Poppins_Bold',
     
     fontSize: 20,
     width: ScreenWidth * 0.6,
-    height: ScreenWidth * 0.24,
+    height: ScreenWidth * 0.14,
   },
 });
