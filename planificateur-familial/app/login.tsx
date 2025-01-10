@@ -7,9 +7,22 @@ import {
   sendEmailVerification
 } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
-import { RelativePathString, router } from 'expo-router';
-import React, {useState} from 'react';
-import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
+import {RelativePathString, Router, router, usePathname, useRouter} from 'expo-router';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Dimensions,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  BackHandler
+} from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
 import {doc, setDoc, updateDoc} from "@firebase/firestore";
 
@@ -17,9 +30,20 @@ const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const Login = () => {
+  const pathname = usePathname();
 
+  useEffect(() => {
+    const handleBackPress = () => {
+      return pathname === '/login';
+    };
 
-  React.useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
     if (Platform.OS === 'android') {
       NavigationBar.setBackgroundColorAsync('#FED77C');
       NavigationBar.setButtonStyleAsync('light');
@@ -32,11 +56,15 @@ const Login = () => {
   const auth = FIREBASE_AUTH;
 
   const handleForgotPasswordClick = () => {
+    BackHandler.addEventListener('hardwareBackPress', ()=>false);
     router.push('/forgotPassword' as RelativePathString);
+
   };
 
   const handleSignupClick = () => {
+    BackHandler.addEventListener('hardwareBackPress', ()=> false);
     router.push('/signup' as RelativePathString);
+
   };
 
   const signIn = async () => {
@@ -84,7 +112,7 @@ const Login = () => {
         end={{ x: 0.5, y: 1 }}
         style={styles.mainContainer}
       >
-        
+
 
         <View style={styles.container}>
           <View style={[styles.fieldWrapper, { marginTop: ScreenHeight*0.27 }] }>
