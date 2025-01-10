@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-import IndexTabBar from '@/components/IndexTabBar';
+
 import { FIREBASE_AUTH } from '@/FirebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from '@firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
-import { sendPasswordResetEmail } from '@firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 

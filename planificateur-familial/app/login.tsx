@@ -52,23 +52,7 @@ const Login = () => {
   };
 
   
-  
-  const signUp = async () => {
-    setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      if (auth.currentUser) {
-        const docRef = doc(FIREBASE_FIRESTORE,"users", auth.currentUser.uid)
-        await setDoc(docRef,{ email: email , name: 'Axel'})
 
-        await sendEmailVerification(auth.currentUser);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
 
 

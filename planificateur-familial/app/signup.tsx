@@ -1,13 +1,13 @@
 import Header from '@/components/Header';
-import IndexTabBar from '@/components/IndexTabBar';
+
 import { FIREBASE_AUTH } from '@/FirebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from '@firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RelativePathString, router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
-import { sendPasswordResetEmail } from '@firebase/auth';
+
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
@@ -16,8 +16,8 @@ const Login = () => {
 
   React.useEffect(() => {
     if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#FED77C'); // Barre de navigation transparente
-      NavigationBar.setButtonStyleAsync('light'); // Icônes en blanc
+      NavigationBar.setBackgroundColorAsync('#FED77C');
+      NavigationBar.setButtonStyleAsync('light');
     }
   }, []);
   
@@ -39,7 +39,7 @@ const Login = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
-        await sendEmailVerification(auth.currentUser);  // Envoi l'email de confirmation
+        await sendEmailVerification(auth.currentUser);
       }
     } catch (error) {
       console.error(error);
@@ -71,7 +71,7 @@ const Login = () => {
       >
         <TouchableOpacity onPress={() => router.push('/')} style={[{ zIndex: 4 }, { position: 'absolute' }]}> {/* refer to index / */}
           <LinearGradient
-            colors={['#4FE2FF', '#4FE2FF']} // Dégradé
+            colors={['#4FE2FF', '#4FE2FF']}
             style={styles.buttonWrap}
             start={{ x: 1, y: -0.2 }}
             end={{ x: 0, y: 1 }}
@@ -85,7 +85,7 @@ const Login = () => {
             <TextInput
               style={styles.fieldText}
               placeholder="Prénom"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
               value={email}
               autoCapitalize='none'
               onChangeText={(text) => setEmail(text)}
