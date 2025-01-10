@@ -39,6 +39,24 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  const resetPassword = async () => {
+    if (!email) {
+      alert("Veuillez entrer une adresse e-mail pour continuer.");
+      return;
+    }
+  
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Un email de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception.");
+    } catch (error) {
+      console.error(error);
+      alert("Une erreur est survenue. Veuillez vérifier l'adresse e-mail ou réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const signUp = async () => {
     setLoading(true);
@@ -53,10 +71,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-
-
-
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -120,7 +134,9 @@ const Login = () => {
             />
           </View>
           <View style={styles.underlineContainer}>
-            <Text style={styles.clickableLink}>MOT DE PASSE OUBLIÉ ?</Text>
+            <TouchableOpacity onPress={resetPassword}>
+              <Text style={styles.clickableLink}>MOT DE PASSE OUBLIÉ ?</Text>
+            </TouchableOpacity>
           </View>
           { loading ? <ActivityIndicator size="large" color="#0000ff" /> : <>
             <TouchableOpacity style={[styles.button, { backgroundColor: '#36B1CA' }]} onPress={signIn}>
@@ -139,7 +155,6 @@ const Login = () => {
           </> }
         </View>
       </LinearGradient>
-      
     </SafeAreaView>
   );
 };
