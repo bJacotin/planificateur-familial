@@ -22,7 +22,11 @@ const signup = () => {
       NavigationBar.setButtonStyleAsync('light');
     }
   }, []);
-  const [email, setEmail] = useState(''), [name, setName] = useState(''), [tukkiText, setTukkiText] = useState('Je suis Tukki, votre assistant Famzone !'), [password, setPassword] = useState(''), [loading, setLoading] = useState(false),
+  const [email, setEmail] = useState(''),
+      [name, setName] = useState(''),
+      [tukkiText, setTukkiText] = useState('Je suis Tukki, votre assistant Famzone !'),
+      [password, setPassword] = useState(''),
+      [loading, setLoading] = useState(false),
       auth = FIREBASE_AUTH, signUp = async () => {
         setLoading(true);
         if (name.length < 1 || name.length > 16) {
@@ -31,9 +35,12 @@ const signup = () => {
           try {
             await createUserWithEmailAndPassword(auth, email, password);
             if (auth.currentUser) {
+              const currentDate = new Date();
+              const isoDate = currentDate.toISOString();
+
               await sendEmailVerification(auth.currentUser);
               const docRef = doc(FIREBASE_FIRESTORE, "users", auth.currentUser.uid)
-              await setDoc(docRef, {email: email, name: name})
+              await setDoc(docRef, {email: email, name: name, accountCreatedDate : isoDate })
             }
             router.push('/login' as RelativePathString)
           } catch (error) {
@@ -92,7 +99,7 @@ const signup = () => {
             <TextInput
               style={styles.fieldText}
               placeholder="Email"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
+              placeholderTextColor="rgba(255, 255, 255, 0.5)" 
               value={email}
               autoCapitalize='none'
               onChangeText={(text) => setEmail(text)}
