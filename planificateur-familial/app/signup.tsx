@@ -1,35 +1,29 @@
 import Header from '@/components/Header';
-
-import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from '@/FirebaseConfig';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  sendEmailVerification
-} from 'firebase/auth';
+import IndexTabBar from '@/components/IndexTabBar';
+import { FIREBASE_AUTH } from '@/FirebaseConfig';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from '@firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RelativePathString, router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
-import {doc, setDoc, updateDoc} from "@firebase/firestore";
+import { sendPasswordResetEmail } from '@firebase/auth';
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const Login = () => {
 
-
   React.useEffect(() => {
     if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#FED77C');
-      NavigationBar.setButtonStyleAsync('light');
+      NavigationBar.setBackgroundColorAsync('#FED77C'); // Barre de navigation transparente
+      NavigationBar.setButtonStyleAsync('light'); // Icônes en blanc
     }
   }, []);
   
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-
   const auth = FIREBASE_AUTH;
 
   const handleForgotPasswordClick = () => {
@@ -40,26 +34,12 @@ const Login = () => {
     router.push('/signup' as RelativePathString);
   };
 
-  const signIn = async () => {
-    setLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const signUp = async () => {
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
-        const docRef = doc(FIREBASE_FIRESTORE,"users", auth.currentUser.uid)
-        await setDoc(docRef,{ email: email , name: 'Axel'})
-
-        await sendEmailVerification(auth.currentUser);
+        await sendEmailVerification(auth.currentUser);  // Envoi l'email de confirmation
       }
     } catch (error) {
       console.error(error);
@@ -70,17 +50,17 @@ const Login = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Image source={require('@/assets/images/soleil.png')}  style={styles.imgSun} />
-      <Image source={require('@/assets/images/nuages1.png')}  style={styles.imgNuage1} />
-      <Image source={require('@/assets/images/nuages2.png')}  style={styles.imgNuage2} />
-      <Image source={require('@/assets/images/Group20.png')}  style={styles.imgTukki} />
-      <Image source={require('@/assets/images/plage.png')}  style={styles.imgPlage} />
+      <Image source={require('@/assets/images/soleil.png')} style={styles.imgSun} />
+      <Image source={require('@/assets/images/nuages1.png')} style={styles.imgNuage1} />
+      <Image source={require('@/assets/images/nuages2.png')} style={styles.imgNuage2} />
+      <Image source={require('@/assets/images/Group20.png')} style={styles.imgTukki} />
+      <Image source={require('@/assets/images/plage.png')} style={styles.imgPlage} />
 
       <View style={styles.imgBulle}>
-        <Image source={require('@/assets/images/Rectangle526.png')} style={{zIndex:5  }} />
-        <Text style={[styles.textBulle, {zIndex:8 }]}>Je suis Tukki, votre assistant Famzone !</Text>
+        <Image source={require('@/assets/images/Rectangle526.png')} style={{ zIndex: 5 }} />
+        <Text style={[styles.textBulle, { zIndex: 8 }]}>Je suis Tukki, votre assistant Famzone !</Text>
       </View>
-      
+
       <StatusBar barStyle="dark-content" backgroundColor="rgba(255, 255, 255, 0)" />
       <LinearGradient
         colors={['#4FE2FF', '#004B5A', '#002C35']}
@@ -89,25 +69,34 @@ const Login = () => {
         end={{ x: 0.5, y: 1 }}
         style={styles.mainContainer}
       >
-        <TouchableOpacity onPress={() => router.push('/')} style={[{zIndex: 4}, {position:'absolute'}]} > {/* refer to index / */}
-          <LinearGradient 
+        <TouchableOpacity onPress={() => router.push('/')} style={[{ zIndex: 4 }, { position: 'absolute' }]}> {/* refer to index / */}
+          <LinearGradient
             colors={['#4FE2FF', '#4FE2FF']} // Dégradé
             style={styles.buttonWrap}
             start={{ x: 1, y: -0.2 }}
-            end={{ x: 0, y: 1 }
-            }
-            
+            end={{ x: 0, y: 1 }}
           >
-            <Image source={require("@/assets/images/arrowLeft.png")}  />
+            <Image source={require("@/assets/images/arrowLeft.png")} />
           </LinearGradient>
         </TouchableOpacity>
 
         <View style={styles.container}>
-          <View style={[styles.fieldWrapper, { marginTop: ScreenHeight*0.27 }] }>
+          <View style={[styles.fieldWrapper, { marginTop: ScreenHeight * 0.27 }]}>
+            <TextInput
+              style={styles.fieldText}
+              placeholder="Prénom"
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
+              value={email}
+              autoCapitalize='none'
+              onChangeText={(text) => setEmail(text)}
+            />
+          </View>
+
+          <View style={styles.fieldWrapper }>
             <TextInput
               style={styles.fieldText}
               placeholder="Email"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
               value={email}
               autoCapitalize='none'
               onChangeText={(text) => setEmail(text)}
@@ -117,29 +106,22 @@ const Login = () => {
           <View style={styles.fieldWrapper}>
             <TextInput
               placeholder="Mot de passe"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
               style={styles.fieldText}
               value={password}
               secureTextEntry={true}
               onChangeText={(text) => setPassword(text)}
             />
           </View>
-          <View style={styles.underlineContainer}>
-          </View>
-          { loading ? <ActivityIndicator size="large" color="#0000ff" /> : <>
-            <TouchableOpacity style={[styles.button, { backgroundColor: '#36B1CA' }]} onPress={signIn}>
-              <Text style={styles.buttonText}>JE ME CONNECTE</Text>
-            </TouchableOpacity>
-          
-            <TouchableOpacity 
-              style={[styles.button, {backgroundColor:'#3D3D3D'}]} 
-                onPress={
-                handleSignupClick                
-              }
+
+          {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <>
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: '#3D3D3D' }]}
+              onPress={handleSignupClick}
             >
               <Text style={styles.buttonText}>JE M'INSCRIS</Text>
-          </TouchableOpacity>
-          </> }
+            </TouchableOpacity>
+          </>}
         </View>
       </LinearGradient>
     </SafeAreaView>
@@ -149,7 +131,7 @@ const Login = () => {
 export default Login;
 
 const styles = StyleSheet.create({
-  fieldText : {
+  fieldText: {
     marginTop: 5,
     color: "white",
     width: "100%",
@@ -162,7 +144,7 @@ const styles = StyleSheet.create({
     display: "flex",
     padding: ScreenWidth * 0.05,
     justifyContent: "center",
-    width: ScreenWidth*0.75,
+    width: ScreenWidth * 0.75,
     height: 62,
     borderTopRightRadius: 25,
     borderTopLeftRadius: 25,
@@ -170,8 +152,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 35,
     backgroundColor: '#3FC3DD',
     margin: ScreenWidth * 0.025,
-    elevation: 5,
-    overflow: 'hidden',
+    elevation: 5,  // Ombre pour Android
+    overflow: 'hidden',  // Force l'ombre à suivre le borderRadius
   },
   button: {
     alignSelf: "center",
@@ -186,7 +168,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "white",
     zIndex: 10,
-
   },
   buttonText: {
     marginTop: 3,
@@ -218,21 +199,18 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
     elevation: 4,
     marginTop: ScreenHeight * 0.10,
-    zIndex: 4,
+    zIndex: 4, // Assurez-vous que la flèche est au-dessus de nuage1
   },
   underlineContainer: {
     alignSelf: 'flex-end',
-    borderBottomWidth: 1,
+    borderBottomWidth: 1,  // Crée un underline
     borderBottomColor: 'white',
-    width: 'auto',
-    paddingBottom: 1,
-    marginRight: ScreenWidth * 0.14,
-    marginBottom: 42,
-    marginTop: 10,
+    width: 'auto',  // La largeur s'adapte au texte
+    paddingBottom: 1,  // Espace entre le texte et le underline
+    marginRight: ScreenWidth * 0.14,  // Marge à droite
+    marginBottom: 42,  // Marge en bas
+    marginTop: 10,  // Marge en haut
   },
-
-
-
   imgSun: {
     position: 'absolute',
     top: ScreenHeight * 0.07,
@@ -240,7 +218,6 @@ const styles = StyleSheet.create({
     width: ScreenWidth * 0.32,
     height: ScreenWidth * 0.32,
     zIndex: 3,
-
   },
   imgNuage1: {
     position: 'absolute',
@@ -277,7 +254,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: ScreenWidth * -0.15,
-    width: ScreenWidth*1.4,
+    width: ScreenWidth * 1.4,
     height: ScreenWidth * 0.7,
     zIndex: 1,
   },
@@ -287,7 +264,6 @@ const styles = StyleSheet.create({
     left: ScreenWidth * 0.05,
     color: '#42484F',
     fontFamily: 'Poppins_Bold',
-    
     fontSize: 20,
     width: ScreenWidth * 0.6,
     height: ScreenWidth * 0.24,
