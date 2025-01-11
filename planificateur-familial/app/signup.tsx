@@ -1,52 +1,48 @@
 import Header from '@/components/Header';
-import IndexTabBar from '@/components/IndexTabBar';
-import { FIREBASE_AUTH } from '@/FirebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from '@firebase/auth';
+
+import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from '@/FirebaseConfig';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RelativePathString, router } from 'expo-router';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
-import { sendPasswordResetEmail } from '@firebase/auth';
+import {setName} from "@expo/config-plugins/build/ios/Name";
+import {doc, setDoc} from "@firebase/firestore";
+
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
-const Login = () => {
+const signup = () => {
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#FED77C'); // Barre de navigation transparente
-      NavigationBar.setButtonStyleAsync('light'); // Icônes en blanc
+      NavigationBar.setBackgroundColorAsync('#FED77C');
+      NavigationBar.setButtonStyleAsync('light');
     }
   }, []);
-  
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const auth = FIREBASE_AUTH;
+  const [email, setEmail] = useState(''), [name, setName] = useState(''), [tukkiText, setTukkiText] = useState('Je suis Tukki, votre assistant Famzone !'), [password, setPassword] = useState(''), [loading, setLoading] = useState(false),
+      auth = FIREBASE_AUTH, signUp = async () => {
+        setLoading(true);
+        if (name.length < 1 || name.length > 16) {
+          setTukkiText('Ton prénom beau gosse ! <3')
+        } else {
+          try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            if (auth.currentUser) {
+              await sendEmailVerification(auth.currentUser);
+              const docRef = doc(FIREBASE_FIRESTORE, "users", auth.currentUser.uid)
+              await setDoc(docRef, {email: email, name: name})
+            }
+            router.push('/login' as RelativePathString)
+          } catch (error) {
+            console.error(error);
+          }
+        }
+        setLoading(false);
+      };
 
-  const handleForgotPasswordClick = () => {
-    router.push('/forgotPassword' as RelativePathString);
-  };
-
-  const handleSignupClick = () => {
-    router.push('/signup' as RelativePathString);
-  };
-
-  const signUp = async () => {
-    setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      if (auth.currentUser) {
-        await sendEmailVerification(auth.currentUser);  // Envoi l'email de confirmation
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -58,7 +54,7 @@ const Login = () => {
 
       <View style={styles.imgBulle}>
         <Image source={require('@/assets/images/Rectangle526.png')} style={{ zIndex: 5 }} />
-        <Text style={[styles.textBulle, { zIndex: 8 }]}>Je suis Tukki, votre assistant Famzone !</Text>
+        <Text style={[styles.textBulle, { zIndex: 8 }]}>{tukkiText}</Text>
       </View>
 
       <StatusBar barStyle="dark-content" backgroundColor="rgba(255, 255, 255, 0)" />
@@ -71,7 +67,7 @@ const Login = () => {
       >
         <TouchableOpacity onPress={() => router.push('/')} style={[{ zIndex: 4 }, { position: 'absolute' }]}> {/* refer to index / */}
           <LinearGradient
-            colors={['#4FE2FF', '#4FE2FF']} // Dégradé
+            colors={['#4FE2FF', '#4FE2FF']}
             style={styles.buttonWrap}
             start={{ x: 1, y: -0.2 }}
             end={{ x: 0, y: 1 }}
@@ -85,10 +81,10 @@ const Login = () => {
             <TextInput
               style={styles.fieldText}
               placeholder="Prénom"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
-              value={email}
-              autoCapitalize='none'
-              onChangeText={(text) => setEmail(text)}
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
+              value={name}
+              autoCapitalize='words'
+              onChangeText={(text) => setName(text)}
             />
           </View>
 
@@ -106,7 +102,7 @@ const Login = () => {
           <View style={styles.fieldWrapper}>
             <TextInput
               placeholder="Mot de passe"
-              placeholderTextColor="rgba(255, 255, 255, 0.5)"  // Placeholders en blanc/gris clair
+              placeholderTextColor="rgba(255, 255, 255, 0.5)"
               style={styles.fieldText}
               value={password}
               secureTextEntry={true}
@@ -117,7 +113,7 @@ const Login = () => {
           {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: '#3D3D3D' }]}
-              onPress={handleSignupClick}
+              onPress={signUp}
             >
               <Text style={styles.buttonText}>JE M'INSCRIS</Text>
             </TouchableOpacity>
@@ -128,7 +124,7 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default signup;
 
 const styles = StyleSheet.create({
   fieldText: {
@@ -152,8 +148,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 35,
     backgroundColor: '#3FC3DD',
     margin: ScreenWidth * 0.025,
-    elevation: 5,  // Ombre pour Android
-    overflow: 'hidden',  // Force l'ombre à suivre le borderRadius
+    elevation: 5,
+    zIndex:10,
+
   },
   button: {
     alignSelf: "center",

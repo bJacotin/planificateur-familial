@@ -1,13 +1,13 @@
 import Header from '@/components/Header';
-import IndexTabBar from '@/components/IndexTabBar';
+
 import { FIREBASE_AUTH } from '@/FirebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from '@firebase/auth';
+
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import React from 'react';
+import {router, useRouter} from 'expo-router';
+import React, {useEffect} from 'react';
 import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
-import { sendPasswordResetEmail } from '@firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 
@@ -19,7 +19,7 @@ const ScreenHeight = Dimensions.get('window').height;
 const ForgotPassword = () => {
     const [email, setEmail] = React.useState('');
     const [loading, setLoading] = React.useState(false);
-  
+    const router = useRouter();
     const handleResetPassword = async () => {
       try {
         await sendPasswordResetEmail(FIREBASE_AUTH, email);
@@ -30,7 +30,7 @@ const ForgotPassword = () => {
       }
     };
   
-    React.useEffect(() => {
+    useEffect(() => {
       if (Platform.OS === 'android') {
         NavigationBar.setBackgroundColorAsync('#FED77C');
         NavigationBar.setButtonStyleAsync('light');

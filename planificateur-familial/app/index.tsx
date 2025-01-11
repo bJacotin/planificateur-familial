@@ -37,15 +37,15 @@ export default function Index() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
             if (user) {
-                console.log('utilisateur connecté, reste sur Index');
+                console.log('Utilisateur connecté, reste sur Index');
             } else {
-                router.push('/login' as RelativePathString);
                 console.log('Aucun utilisateur connecté');
+                router.push('/login' as RelativePathString);
             }
         });
-
         return () => unsubscribe();
-    }, []);
+    }, [router]);
+
     useEffect(() => {
         if (Platform.OS === 'android') {
             NavigationBar.setBackgroundColorAsync('#FFFFFF');

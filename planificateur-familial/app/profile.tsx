@@ -39,7 +39,7 @@ export default function profile() {
         }
     }, []);
 
-    const getName(FIREBASE_AUTH.currentUser.uid )
+
 
     const handleChoosePhoto = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({

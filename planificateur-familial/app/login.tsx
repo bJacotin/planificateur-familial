@@ -7,9 +7,22 @@ import {
   sendEmailVerification
 } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
-import { RelativePathString, router } from 'expo-router';
-import React from 'react';
-import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
+import {RelativePathString, Router, router, usePathname, useRouter} from 'expo-router';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Dimensions,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  BackHandler
+} from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
 import {doc, setDoc, updateDoc} from "@firebase/firestore";
 
@@ -17,50 +30,48 @@ const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const Login = () => {
+  const pathname = usePathname();
 
+  useEffect(() => {
+    const handleBackPress = () => {
+      return pathname === '/login';
+    };
 
-  React.useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
     if (Platform.OS === 'android') {
       NavigationBar.setBackgroundColorAsync('#FED77C');
       NavigationBar.setButtonStyleAsync('light');
     }
   }, []);
   
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
 
   const handleForgotPasswordClick = () => {
+    BackHandler.addEventListener('hardwareBackPress', ()=>false);
     router.push('/forgotPassword' as RelativePathString);
+
   };
 
   const handleSignupClick = () => {
+    BackHandler.addEventListener('hardwareBackPress', ()=> false);
     router.push('/signup' as RelativePathString);
+
   };
 
   const signIn = async () => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUp = async () => {
-    setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      if (auth.currentUser) {
-        const docRef = doc(FIREBASE_FIRESTORE,"users", auth.currentUser.uid)
-        await setDoc(docRef,{ email: email , name: 'Axel'})
-
-        await sendEmailVerification(auth.currentUser);
-      }
+      router.push('/' as RelativePathString)
     } catch (error) {
       console.error(error);
     } finally {
@@ -89,18 +100,7 @@ const Login = () => {
         end={{ x: 0.5, y: 1 }}
         style={styles.mainContainer}
       >
-        <TouchableOpacity onPress={() => router.push('/')} style={[{zIndex: 4}, {position:'absolute'}]} > {/* refer to index / */}
-          <LinearGradient 
-            colors={['#4FE2FF', '#4FE2FF']} // Dégradé
-            style={styles.buttonWrap}
-            start={{ x: 1, y: -0.2 }}
-            end={{ x: 0, y: 1 }
-            }
-            
-          >
-            <Image source={require("@/assets/images/arrowLeft.png")}  />
-          </LinearGradient>
-        </TouchableOpacity>
+
 
         <View style={styles.container}>
           <View style={[styles.fieldWrapper, { marginTop: ScreenHeight*0.27 }] }>
