@@ -17,11 +17,17 @@ export default function Index() {
         router.push('/login' as RelativePathString);
     };
 
+    const handleProfileClick = () => {
+        router.push('/profile' as RelativePathString);
+    };
+
     return (
         <View style={{flex:1,backgroundColor:"white"}}>
             <StatusBar style="dark" backgroundColor="#FFFFFF" />
             <Text style={{marginTop:25}} onPress={handleToDoClick}>Todo</Text>
             <Button title="Go to Login" onPress={handleLoginClick} />
+            <Button title="Go to Profile" onPress={handleProfileClick} />
+
             <IndexTabBar/>
         </View>
     );
