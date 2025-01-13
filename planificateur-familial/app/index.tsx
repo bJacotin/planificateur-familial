@@ -54,6 +54,10 @@ export default function Index() {
     }, []);
 
     const profilePicture = '@/assets/images/emptyProfilePicture.png';
+    const handleAgendaClick =()=>  {
+        router.push('/agenda' as RelativePathString);
+    }
+
     return (
         <ScrollView style={{flex:1,backgroundColor:"#FFD902"}}>
             <StatusBar style="dark" backgroundColor="#FFD902"/>
@@ -64,6 +68,9 @@ export default function Index() {
             <View style={styles.content}>
                 <Text style={styles.hello}>Bonjour, {name} !</Text>
             </View>
+            <TouchableOpacity onPress={handleAgendaClick}> 
+                <Text>agenda</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
