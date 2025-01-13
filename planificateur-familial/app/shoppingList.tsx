@@ -7,11 +7,13 @@ import {
     View,
     ScrollView,
     Modal,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    Image
   } from "react-native";
   import { LinearGradient } from 'expo-linear-gradient';
   import { useState, useEffect } from 'react';
   import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
   
   type ShoppingItem = {
     name: string;
@@ -80,7 +82,10 @@ import {
                 colors={['#C153F8', '#E15D5A']}
                 style={styles.header}
             >
-                <Text style={styles.headerTitle}>Ma Liste de Courses</Text>
+            <Text style={styles.headerTitle}>Ma Liste de Courses</Text>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Image source={require('../assets/images/arrowLeft.png')} style={{ width: 42, height: 60 }} />
+            </TouchableOpacity>
             </LinearGradient>
             <View style={styles.container}>
                 <ScrollView>
@@ -91,6 +96,10 @@ import {
                             onLongPress={() => deleteItem(index)}
                         >
                             <View style={[styles.itemContainer, item.isBought && styles.itemBought]}>
+                                <Image
+                                    source={item.isBought ? require('../assets/images/checkedCircle.png') : require('../assets/images/uncheckedCircle.png')}
+                                    style={{ width: 24, height: 24, marginLeft: 10, marginRight: 10 }}
+                                />
                                 <Text style={styles.itemText}>
                                     {item.name} ({item.quantity})
                                 </Text>
@@ -150,7 +159,7 @@ import {
   
   const styles = StyleSheet.create({
     header: {
-        padding: 20,
+        padding: 30,
         alignItems: 'center',
     },
     headerTitle: {
@@ -158,11 +167,23 @@ import {
         fontSize: 20,
         fontWeight: 'bold',
     },
+    backButton: {
+        position: 'absolute',
+        left: 5,
+        top: 5,
+        padding: 10,
+        borderRadius: 5,
+    },
+    backButtonText: {
+        color: 'white',
+        fontSize: 18,
+    },
     container: {
         flex: 1,
         padding: 20,
     },
     itemContainer: {
+        flexDirection: 'row',
         backgroundColor: 'white',
         padding: 15,
         marginVertical: 5,
@@ -173,6 +194,7 @@ import {
         elevation: 5,
         borderWidth: 2,
         borderBottomWidth: 5,
+        
     },
     itemBought: {
         backgroundColor: '#D1FAD7',

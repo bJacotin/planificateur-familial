@@ -18,9 +18,6 @@ import * as NavigationBar from "expo-navigation-bar";
 import {onAuthStateChanged} from "firebase/auth";
 import {FIREBASE_AUTH} from "@/FirebaseConfig";
 
-
-
-
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
@@ -64,6 +61,9 @@ export default function Index() {
             <View style={styles.content}>
                 <Text style={styles.hello}>Bonjour, {name} !</Text>
             </View>
+            <TouchableOpacity onPress={() => router.push('/shoppingList' as RelativePathString)} style={styles.button}>
+                <Text style={styles.buttonText}>Liste des Courses</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
