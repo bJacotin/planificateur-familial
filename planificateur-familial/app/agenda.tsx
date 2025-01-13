@@ -6,12 +6,14 @@ import {
     TouchableOpacity,
     StyleSheet,
     FlatList,
+    Alert,
     SafeAreaView,
     Modal,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Calendar } from 'react-native-calendars';
 import moment from 'moment';
+
 
 const initialTasks = {};
 
@@ -235,152 +237,222 @@ export default function App() {
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-    },
-    headerContainer: {
-        marginBottom: 20,
-    },
-    header: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 10,
-    },
-    addButton: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 50,
-        position: 'absolute',
-        bottom: 20,
-        right: 615,
-    },
-    addButtonText: {
-        color: 'white',
-        fontSize: 24,
-    },
-    dayContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    dayNumber: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    dayTasksContainer: {
-        marginTop: 5,
-    },
-    taskSummary: {
-        fontSize: 14,
-        color: 'white',
-        marginBottom: 5,
-    },
-    item: {
-        flexDirection: 'row',
-        padding: 10,
-        marginBottom: 10,
-        borderRadius: 8,
-    },
-    taskDetails: {
-        flex: 1,
-    },
-    taskName: {
-        fontWeight: 'bold',
-    },
-    taskData: {
-        color: '#666',
-    },
-    taskTime: {
-        color: '#666',
-    },
-    editButton: {
-        justifyContent: 'center',
-        paddingHorizontal: 10,
-    },
-    editButtonText: {
-        color: '#007BFF',
-        fontWeight: 'bold',
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        width: '80%',
-    },
-    modalHeader: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    input: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingLeft: 8,
-    },
-    datePickerButton: {
-        marginBottom: 10,
-        padding: 10,
-        backgroundColor: '#007BFF',
-        borderRadius: 5,
-    },
-    datePickerText: {
-        color: 'white',
-    },
-    picker: {
-        marginBottom: 10,
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    saveButton: {
-        backgroundColor: '#28a745',
-        padding: 10,
-        borderRadius: 5,
-    },
-    deleteButton: {
-        backgroundColor: '#dc3545',
-        marginLeft: 20,
-        padding: 17,
-        borderRadius: 25,
-    },
-    cancelButton: {
-        backgroundColor: '#6c757d',
-        padding: 10,
-        borderRadius: 5,
-    },
-    saveButtonText: {
-        color: 'white',
-    },
-    deleteButtonText: {
-        color: 'white',
-    },
-    cancelButtonText: {
-        color: 'white',
-    },
-    noTasksText: {
-        textAlign: 'center',
-        marginTop: 20,
-        color: '#999',
-    },
-    backButton: {
-        padding: 10,
-        backgroundColor: '#007BFF',
-        borderRadius: 5,
-        marginBottom: 10,
-    },
-    backButtonText: {
-        color: 'white',
-        fontWeight: 'bold',
-    },
+  container: {
+      flex: 1,
+      backgroundColor: '#fffbf2',
+      paddingTop: 30,
+  },
+  headerContainer: {
+      marginBottom: 30,
+      paddingHorizontal: 20,
+  },
+  header: {
+      fontSize: 32,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: '#003366',
+      letterSpacing: 2,
+      marginBottom: 10,
+  },
+  addButton: {
+      backgroundColor: '#0099cc',
+      padding: 20,
+      borderRadius: 60,
+      position: 'absolute',
+      bottom: 20,
+      right: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 10,
+  },
+  addButtonText: {
+      color: 'white',
+      fontSize: 20,
+      fontWeight: 'bold',
+  },
+  dayContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#80e0e6',
+      borderRadius: 20,
+      padding: 30,
+      marginVertical: 15,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+  },
+  dayNumber: {
+      fontSize: 50,
+      fontWeight: '700',
+      color: '#003366',
+      marginBottom: 15,
+  },
+  dayTasksContainer: {
+      marginTop: 10,
+      padding: 15,
+      backgroundColor: '#f7f7f7',
+      borderRadius: 15,
+      width: '100%',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+  },
+  taskSummary: {
+      fontSize: 18,
+      color: '#003366',
+      marginBottom: 10,
+  },
+  item: {
+      flexDirection: 'row',
+      padding: 15,
+      marginBottom: 12,
+      backgroundColor: '#ffffff',
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: '#e3e3e3',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.1,
+      shadowRadius: 5,
+  },
+  taskDetails: {
+      flex: 1,
+      paddingRight: 15,
+  },
+  taskName: {
+      fontWeight: 'bold',
+      color: '#003366',
+      fontSize: 18,
+  },
+  taskData: {
+      color: '#666',
+      fontSize: 16,
+  },
+  taskTime: {
+      color: '#666',
+      fontSize: 14,
+  },
+  editButton: {
+      justifyContent: 'center',
+      paddingHorizontal: 15,
+  },
+  editButtonText: {
+      color: '#00aaff',
+      fontWeight: 'bold',
+  },
+  modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#ffffff',
+    padding: 15,
+    borderRadius: 10,
+    width: '80%',
+    maxWidth: 350,
+    minHeight: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+},
+  modalHeader: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#003366',
+      marginBottom: 15,
+      textAlign: 'center',
+  },
+  input: {
+      height: 35,
+      borderColor: '#ddd',
+      borderWidth: 1,
+      marginBottom: 15,
+      paddingLeft: 15,
+      backgroundColor: '#f8f8f8',
+      borderRadius: 10,
+      fontSize: 16,
+      width: '100%',
+  },
+  datePickerButton: {
+      padding: 10,
+      backgroundColor: '#00aaff',
+      borderRadius: 20,
+      alignItems: 'center',
+      marginBottom: 15,
+  },
+  datePickerText: {
+      color: 'white',
+      fontSize: 16,
+  },
+  picker: {
+      backgroundColor: '#f8f8f8',
+      borderRadius: 10,
+      height: 50,
+  },
+  modalButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 20,
+  },
+  saveButton: {
+      backgroundColor: '#28a745',
+      padding: 15,
+      borderRadius: 10,
+      flex: 1,
+      alignItems: 'center',
+      marginRight: 10,
+  },
+  deleteButton: {
+    backgroundColor: '#dc3545',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 90,
+    height: 40,
+},
+  cancelButton: {
+      backgroundColor: '#6c757d',
+      padding: 15,
+      borderRadius: 10,
+      flex: 1,
+      alignItems: 'center',
+  },
+  saveButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 18,
+  },
+  deleteButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 18,
+  },
+  cancelButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 18,
+  },
+  noTasksText: {
+      textAlign: 'center',
+      color: '#aaa',
+      fontSize: 18,
+  },
+  backButton: {
+      padding: 15,
+      backgroundColor: '#003366',
+      borderRadius: 10,
+      marginTop: 20,
+  },
+  backButtonText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 18,
+  },
 });
