@@ -136,6 +136,9 @@ export default function App() {
             <TouchableOpacity onPress={() => handleEditTask(task)} style={styles.editButton}>
                 <Text style={styles.editButtonText}>Éditer</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleDeleteTask(task)} style={styles.deleteButton}>
+                <Text style={styles.deleteButtonText}>Supprimer</Text>
+            </TouchableOpacity>
         </View>
     );
 
@@ -211,29 +214,12 @@ export default function App() {
         />
     </View>
 )}
-
-                        <Text style={styles.colorText}>Choisir la couleur de la tâche :</Text>
-                        <Picker
-                            selectedValue={selectedColor}
-                            style={styles.picker}
-                            onValueChange={(itemValue) => setSelectedColor(itemValue)}>
-                            <Picker.Item label="Urgent (Rouge)" value="#FF6347" />
-                            <Picker.Item label="Important (Vert)" value="#32CD32" />
-                            <Picker.Item label="Normal (Bleu)" value="#1E90FF" />
-                        </Picker>
                         <View style={styles.modalButtons}>
                             <TouchableOpacity style={styles.saveButton} onPress={handleAddOrEditTask}>
                                 <Text style={styles.saveButtonText}>
                                     {editingTask ? 'Modifier' : 'Ajouter'}
                                 </Text>
                             </TouchableOpacity>
-                            {editingTask && (
-                                <TouchableOpacity
-                                    style={styles.deleteButton}
-                                    onPress={() => handleDeleteTask(editingTask)}>
-                                    <Text style={styles.deleteButtonText}>Supprimer</Text>
-                                </TouchableOpacity>
-                            )}
                             <TouchableOpacity
                                 style={styles.cancelButton}
                                 onPress={() => setModalVisible(false)}>
@@ -268,7 +254,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         position: 'absolute',
         bottom: 20,
-        right: 20,
+        right: 615,
     },
     addButtonText: {
         color: 'white',
@@ -364,8 +350,9 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         backgroundColor: '#dc3545',
-        padding: 10,
-        borderRadius: 5,
+        marginLeft: 20,
+        padding: 17,
+        borderRadius: 25,
     },
     cancelButton: {
         backgroundColor: '#6c757d',
