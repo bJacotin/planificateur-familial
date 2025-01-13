@@ -13,6 +13,7 @@ import {
   import { LinearGradient } from 'expo-linear-gradient';
   import { useState, useEffect } from 'react';
   import AsyncStorage from '@react-native-async-storage/async-storage';
+  import { Share } from "react-native";
 import { router } from "expo-router";
   
   type ShoppingItem = {
@@ -20,6 +21,7 @@ import { router } from "expo-router";
     quantity: string;
     isBought: boolean;
   };
+  
   
   export default function ShoppingListApp() {
     const [itemName, setItemName] = useState<string>("");
@@ -75,6 +77,35 @@ import { router } from "expo-router";
             console.error('Erreur lors de la sauvegarde de la liste', error);
         }
     };
+
+    const shareList = async () => {
+        const itemsToBuy = shoppingList.filter(item => !item.isBought);
+        const boughtItems = shoppingList.filter(item => item.isBought);
+    
+        let message = "🛒 **Ma Liste de Courses**\n\n";
+    
+        if (itemsToBuy.length > 0) {
+            message += "📌 À acheter :\n";
+            itemsToBuy.forEach(item => {
+                message += `- ${item.name} (${item.quantity})\n`;
+            });
+        } else {
+            message += "🎉 Tout est acheté !\n";
+        }
+    
+        if (boughtItems.length > 0) {
+            message += "\n✅ Déjà acheté :\n";
+            boughtItems.forEach(item => {
+                message += `- ${item.name} (${item.quantity})\n`;
+            });
+        }
+    
+        try {
+            await Share.share({ message });
+        } catch (error) {
+            console.error("Erreur lors du partage", error);
+        }
+    };
   
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -84,7 +115,10 @@ import { router } from "expo-router";
             >
             <Text style={styles.headerTitle}>Ma Liste de Courses</Text>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Image source={require('../assets/images/arrowLeft.png')} style={{ width: 42, height: 60 }} />
+                <Image source={require('../assets/images/arrowLeft.png')} style={{ width: 42, height: 60 }}/>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={shareList} style={styles.shareButton}>
+                <Text style={styles.shareButtonText}>Partager</Text>
             </TouchableOpacity>
             </LinearGradient>
             <View style={styles.container}>
@@ -160,11 +194,15 @@ import { router } from "expo-router";
   const styles = StyleSheet.create({
     header: {
         padding: 30,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        //aligner les éléments dans le header verticalement
         alignItems: 'center',
     },
     headerTitle: {
         color: 'white',
         fontSize: 20,
+        marginRight: 40,
         fontWeight: 'bold',
     },
     backButton: {
@@ -249,6 +287,26 @@ import { router } from "expo-router";
     },
     addItemText: {
         color: 'white',
+        fontWeight: 'bold',
+    },
+
+    shareButton: {
+        position: 'absolute',
+        right: 10,
+        top: 30,
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 5,
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
+    },
+
+    shareButtonText: {
+        color: '#C153F8',
         fontWeight: 'bold',
     },
   });
