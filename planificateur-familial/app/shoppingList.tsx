@@ -14,7 +14,7 @@ import {
   import { useState, useEffect } from 'react';
   import AsyncStorage from '@react-native-async-storage/async-storage';
   import { Share } from "react-native";
-import { router } from "expo-router";
+  import { router } from "expo-router";
   
   type ShoppingItem = {
     name: string;
@@ -196,7 +196,6 @@ import { router } from "expo-router";
         padding: 30,
         flexDirection: 'row',
         justifyContent: 'space-around',
-        //aligner les éléments dans le header verticalement
         alignItems: 'center',
     },
     headerTitle: {
@@ -243,12 +242,19 @@ import { router } from "expo-router";
     },
     newItemButton: {
         padding: 15,
-        borderRadius: 10,
+        borderRadius: 5,
         alignItems: 'center',
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
     },
     buttonText: {
         color: 'white',
         fontWeight: 'bold',
+        
     },
     modalContainer: {
         flex: 1,
@@ -276,20 +282,25 @@ import { router } from "expo-router";
         borderBottomLeftRadius:35,
         borderWidth:2,
         borderBottomWidth:5,
-  
         borderRadius: 5,
         marginBottom: 10,
     },
     addItemButton: {
         padding: 10,
-        borderRadius: 10,
+        borderRadius: 5,
         alignItems: 'center',
+        borderTopRightRadius:25,
+        borderTopLeftRadius:25,
+        borderBottomRightRadius:35,
+        borderBottomLeftRadius:35,
+        borderWidth:2,
+        borderBottomWidth:5,
+        
     },
     addItemText: {
         color: 'white',
         fontWeight: 'bold',
     },
-
     shareButton: {
         position: 'absolute',
         right: 10,
