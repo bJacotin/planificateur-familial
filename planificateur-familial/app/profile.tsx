@@ -1,143 +1,232 @@
-import React, {useEffect, useState} from "react";
-import {RelativePathString, useRouter} from "expo-router";
-import {onAuthStateChanged} from "firebase/auth";
-import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
-import {
-    Image,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    StatusBar,
-    Dimensions, Button, PermissionsAndroid
-} from "react-native";
-import * as NavigationBar from "expo-navigation-bar";
-import Header from "@/components/Header";
-import {signOut} from "firebase/auth";
-import { launchImageLibrary } from "react-native-image-picker";
-import firebase from "firebase/compat";
-import firestore = firebase.firestore;
-import * as ImagePicker from "expo-image-picker";
-import {doc, getDoc} from "@firebase/firestore";
+import Header from '@/components/Header';
+
+import { FIREBASE_AUTH } from '@/FirebaseConfig';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { LinearGradient } from 'expo-linear-gradient';
+import { RelativePathString, router } from 'expo-router';
+import React from 'react';
+import { View, Text, TextInput, ActivityIndicator, TouchableOpacity, StyleSheet, Image, Dimensions, SafeAreaView, StatusBar, Platform } from 'react-native';
+import * as NavigationBar from 'expo-navigation-bar';
+
+
+
+
+
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
-export default function profile() {
-    const [name,setName] = useState<string>(FIREBASE_AUTH.currentUser.uid)
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [uploading, setUploading] = useState(false);
-    const [user, setUser] = useState<any>(FIREBASE_AUTH);
-    const [loadingUser, setLoadingUser] = useState(true);
-    const [profilePicture, setProfilePicture] = useState<string | null>(null);
-    const userId = user.uid;
 
-    useEffect(() => {
+const Login = () => {
+
+    React.useEffect(() => {
         if (Platform.OS === 'android') {
-            NavigationBar.setBackgroundColorAsync('#FFD902');
-            NavigationBar.setButtonStyleAsync('dark');
+            NavigationBar.setBackgroundColorAsync('#FED77C'); // Barre de navigation transparente
+            NavigationBar.setButtonStyleAsync('light'); // Icônes en blanc
         }
     }, []);
 
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [loading, setLoading] = React.useState(false);
+    const auth = FIREBASE_AUTH;
 
+    const handleForgotPasswordClick = () => {
+        router.push('/forgotPassword' as RelativePathString);
+    };
 
-    const handleChoosePhoto = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: "images",
-            allowsEditing: true,
-            aspect: [3, 3],
-            quality: 0.3,
-        });
+    const handleSignupClick = () => {
+        router.push('/signup' as RelativePathString);
+    };
 
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-            const { uri } = result.assets[0];
-            setSelectedImage(uri);
-            setProfilePicture(uri);
-        } else {
-            console.log("Image selection cancelled");
+    const signIn = async () => {
+        setLoading(true);
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
-    const logout = async () => {
-        try {
-            await signOut(FIREBASE_AUTH);
-            console.log("Déconnexion réussie");
 
+
+
+    const signUp = async () => {
+        setLoading(true);
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            if (auth.currentUser) {
+                await sendEmailVerification(auth.currentUser);  // Envoi l'email de confirmation
+            }
         } catch (error) {
-            console.error("Erreur lors de la déconnexion :", error);
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
+
+
 
 
     return (
-        <View style={{backgroundColor:'#FFD902', flex:1}}>
-            <StatusBar barStyle="dark-content" backgroundColor="rgba(255, 255, 255, 0)" />
-                <Header text={''}></Header>
-                <Image style={styles.profilePicture} source={
-                    profilePicture
-                        ? { uri: profilePicture }
-                        : require("@/assets/images/emptyProfilePicture.png")
-                }></Image>
 
-                <View style={styles.userDataDisplay}>
-                    <Text style={styles.name}> {name}</Text>
-                    <Button title="Choisir une image" onPress={handleChoosePhoto} />
+        <SafeAreaView style={styles.SafeArea}>
+            <Image source={require('@/assets/images/edit-pen-icon.jpg')}  style={styles.imgEdit} />
+            <Image source={require('@/assets/images/pp.jpg')}  style={[styles.pp]} />
+
+
+            <View style={styles.mainContainer}>
+                <LinearGradient
+                    colors={['#4FE2FF', '#004B5A', '#002C35']}
+                    locations={[0, 0.8, 1]}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={{ height: ScreenHeight *0.36, }}
+                />
+                <View style={styles.centerContainer}>
+                    <View>
+                        <Text style={styles.nameText}>Prénom</Text>
+                        <Text style={styles.ageText}>Age</Text>
+
+                    </View>
                 </View>
-                <TouchableOpacity style={styles.logout} onPress={logout} >
-                    <Text style={styles.logoutText}>Se déconnecter</Text>
+            </View>
+            <View style={styles.Container}>
+                <Text style={styles.titleText}>Famille</Text>
+                <Image source={require('@/assets/images/three-points.png')}  style={[styles.imgThreePoints,{top:ScreenHeight*0.028}]} />
+
+                <TouchableOpacity style={styles.familyContainer}>
+                    <Text style={styles.familyText}>Boubakar</Text>
                 </TouchableOpacity>
-        </View>
+                <Text style={[styles.titleText,{marginTop:ScreenHeight*0.035}]}>Badges   <Image source={require('@/assets/images/info.png')}  style={[styles.imgInfo]} />
+                </Text>
+
+            </View>
+
+        </SafeAreaView>
     );
-}
+};
+
+export default Login;
 
 const styles = StyleSheet.create({
-    profilePicture: {
-        width: ScreenWidth*0.43,
-        height: ScreenWidth*0.43,
-        borderWidth:2,
-        borderRadius:20000,
-        borderColor:'black',
-        alignSelf:"center",
 
-        top:20,
-        zIndex:3
-    },
-    userDataDisplay: {
-        backgroundColor:'white',
-        height:ScreenHeight*0.5,
-        borderBottomLeftRadius:30,
-        borderBottomRightRadius:30,
-        elevation:4,
-        top:-10
-    },
-    logout: {
-        width: ScreenWidth*0.46,
-        height: 60,
-        backgroundColor:'white',
-        borderBottomRightRadius: 35,
-        borderBottomLeftRadius: 35,
-        borderTopLeftRadius:25,
-        borderTopRightRadius:25,
-        display: "flex",
-        justifyContent:"center",
-        alignItems:"center",
-        elevation: 5,
-        borderWidth:2,
-        borderBottomWidth:5,
-        alignSelf:"center",
-        marginTop:30,
-    },
-    logoutText: {
-        marginTop:3,
-        fontSize:14,
-        fontFamily: "Poppins_Medium",
-        textAlign:"center"
-    },
-    name: {
-        marginTop:35,
-        fontSize:24,
-        fontFamily: "Poppins_SemiBold",
-        textAlign:"center"
-    }
+    Container: {
+        marginTop: -ScreenHeight*0.1,
+        marginLeft: ScreenWidth*0.1,
+        alignContent: 'center',
+        alignItems: 'center',
+        flex: 1,
 
+    },
+    mainContainer: {
+        flex: 1,
+        alignContent: 'center',
+    },
+    centerContainer: {
+        width: ScreenWidth*0.9,
+        height: ScreenHeight*0.2,
+        backgroundColor: '#E7E7E7',
+        position: 'absolute',
+        alignSelf: 'center',
+        marginTop: ScreenWidth*0.52,
+        borderRadius: 20,
+        elevation: 10,
+        shadowColor: 'black',
+        justifyContent: 'center',
+    },
+    nameText: {
+        fontSize: 20,
+        fontFamily: 'Poppins_Bold',
+        color: 'black',
+        marginTop: ScreenHeight*0.04,
+
+        alignSelf: 'center',
+    },
+    titleText: {
+        fontSize: 26,
+        fontFamily: 'Poppins_Bold',
+        color: 'black',
+        marginTop: ScreenHeight*0.01,
+        alignSelf: 'flex-start',
+
+    },
+    ageText: {
+        fontSize: 20,
+        fontFamily: 'Poppins_Regular',
+        color: 'black',
+        alignSelf: 'center',
+        opacity: 0.5,
+        marginTop: -ScreenHeight*0.005,
+    },
+    SafeArea: {
+        flex: 1,
+        backgroundColor: 'white',
+    },
+
+    imgThreePoints: {
+        width: ScreenWidth*0.05,
+        height: ScreenWidth*0.05,
+        position: 'absolute',
+        zIndex: 10,
+        opacity: 0.5,
+        right: ScreenWidth*0.09,
+    },
+
+    familyContainer: {
+        width: ScreenWidth*0.8,
+        height: ScreenHeight*0.08,
+        backgroundColor: '#E7E7E7',
+        borderRadius: 1000,
+        elevation: 10,
+        shadowColor: 'black',
+        justifyContent: 'center',
+        marginTop: ScreenHeight*0.01,
+        alignSelf: 'flex-start',
+
+
+    },
+    pp: {
+        width: ScreenWidth*0.3,
+        height: ScreenWidth*0.3,
+        borderRadius: 1000,
+        position: 'absolute',
+        zIndex: 10,
+        top: ScreenHeight*0.18,
+        alignSelf: 'center',
+        elevation: 10,
+        borderWidth: 3,
+        borderColor: 'white',
+    },
+
+    familyText: {
+        fontSize: 20,
+        fontFamily: 'Poppins_Bold',
+        color: 'black',
+        alignSelf: 'flex-start',
+        paddingLeft: ScreenWidth*0.2,
+        opacity: 0.5,
+        paddingTop: ScreenHeight*0.008,
+    },
+    imgEdit: {
+        width: ScreenWidth*0.05,
+        height: ScreenWidth*0.05,
+        marginTop: ScreenHeight*0.05,
+        marginLeft: ScreenWidth*0.8,
+        position: 'absolute',
+        zIndex: 10,
+        opacity: 0.5,
+        top: ScreenHeight*0.22,
+        right: ScreenWidth*0.09,
+    },
+
+    imgInfo: {
+        width: ScreenWidth*0.05,
+        height: ScreenWidth*0.05,
+        position: 'absolute',
+        zIndex: 10,
+        opacity: 0.5,
+
+    },
 
 });
