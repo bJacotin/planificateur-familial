@@ -8,8 +8,8 @@ import {
     FlatList,
     SafeAreaView,
     Modal,
-    Picker,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { Calendar } from 'react-native-calendars';
 import moment from 'moment';
 
@@ -33,7 +33,7 @@ export default function App() {
 
         if (editingTask) {
             const updatedTasks = { ...tasks };
-            const taskIndex = updatedTasks[newTask.date].findIndex(t => t.id === editingTask.id);
+            const taskIndex = updatedTasks[newTask.date]?.findIndex(t => t.id === editingTask.id);
             if (taskIndex !== -1) {
                 updatedTasks[newTask.date][taskIndex] = { ...newTask, color: selectedColor };
                 setTasks(updatedTasks);
@@ -81,14 +81,16 @@ export default function App() {
 
     const handleDeleteTask = (task) => {
         const updatedTasks = { ...tasks };
-        const taskIndex = updatedTasks[task.date].findIndex(t => t.id === task.id);
-        updatedTasks[task.date].splice(taskIndex, 1);
-
-        if (updatedTasks[task.date].length === 0) {
-            delete updatedTasks[task.date];
+        const taskIndex = updatedTasks[task.date]?.findIndex(t => t.id === task.id);
+        if (taskIndex !== undefined && taskIndex !== -1) {
+            updatedTasks[task.date].splice(taskIndex, 1);
+            if (updatedTasks[task.date].length === 0) {
+                delete updatedTasks[task.date];
+            }
+            setTasks(updatedTasks);
+            setEditingTask(null);
+            setModalVisible(false);
         }
-
-        setTasks(updatedTasks);
         setEditingTask(null);
     };
 
@@ -98,9 +100,7 @@ export default function App() {
         </TouchableOpacity>
     );
 
-    const renderTaskColor = (color) => {
-        return { backgroundColor: color || 'lightblue' };
-    };
+    const renderTaskColor = (color) => ({ backgroundColor: color || 'lightblue' });
 
     const renderCalendar = () => {
         const markedDates = Object.keys(tasks).reduce((acc, date) => {
@@ -122,148 +122,131 @@ export default function App() {
                 }}
                 monthFormat={'yyyy MM'}
                 markedDates={markedDates}
-                renderDay={(day, item) => {
-                    const taskForDay = tasks[day.dateString] || [];
-                    return (
-                        <View style={styles.dayContainer}>
-                            <Text style={styles.dayNumber}>{day.day}</Text>
-                            <View style={styles.dayTasksContainer}>
-                                {taskForDay.slice(0, 2).map((task, index) => (
-                                    <TouchableOpacity key={task.id} onPress={() => handleEditTask(task)}>
-                                        <Text
-                                            style={[styles.taskSummary, { color: task.color || '#333' }]}
-                                        >
-                                            {task.name}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                                {taskForDay.length > 2 && (
-                                    <Text style={styles.taskSummary}>+{taskForDay.length - 2} autres tâches</Text>
-                                )}
-                            </View>
-                        </View>
-                    );
-                }}
             />
         );
     };
 
-    const renderTask = (task) => {
-        return (
-            <View style={[styles.item, renderTaskColor(task.color)]}>
-                <View style={styles.taskDetails}>
-                    <Text style={styles.taskName}>{task.name}</Text>
-                    <Text style={styles.taskData}>{task.data}</Text>
-                    <Text style={styles.taskTime}>{task.time}</Text>
-                </View>
-                <TouchableOpacity onPress={() => handleEditTask(task)} style={styles.editButton}>
-                    <Text style={styles.editButtonText}>Éditer</Text>
-                </TouchableOpacity>
+    const renderTask = (task) => (
+        <View style={[styles.item, renderTaskColor(task.color)]}>
+            <View style={styles.taskDetails}>
+                <Text style={styles.taskName}>{task.name}</Text>
+                <Text style={styles.taskData}>{task.data}</Text>
+                <Text style={styles.taskTime}>{task.time}</Text>
             </View>
+            <TouchableOpacity onPress={() => handleEditTask(task)} style={styles.editButton}>
+                <Text style={styles.editButtonText}>Éditer</Text>
+            </TouchableOpacity>
+        </View>
+    );
+
+    const renderScreen = () => {
+        if (currentScreen === 'DayAgenda') {
+            return (
+                <SafeAreaView style={styles.container}>
+                    <TouchableOpacity onPress={() => setCurrentScreen('Home')} style={styles.backButton}>
+                        <Text style={styles.backButtonText}>← Retour</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.header}>Agenda du {selectedDate}</Text>
+                    <FlatList
+                        data={tasks[selectedDate] || []}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => renderTask(item)}
+                        ListEmptyComponent={<Text style={styles.noTasksText}>Aucune tâche pour ce jour.</Text>}
+                    />
+                    {renderAddButton()}
+                </SafeAreaView>
+            );
+        }
+        return (
+            <SafeAreaView style={styles.container}>
+                {renderCalendar()}
+                {renderAddButton()}
+            </SafeAreaView>
         );
     };
 
-    if (currentScreen === 'Home') {
-        return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.headerContainer}>
-                    {renderCalendar()}
-                </View>
-                {renderAddButton()}
+    return (
+        <SafeAreaView style={styles.container}>
+            {renderScreen()}
+            <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalHeader}>
+                            {editingTask ? 'Modifier la Tâche' : 'Nouvelle Tâche'}
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nom de la tâche"
+                            value={newTask.name}
+                            onChangeText={(text) => setNewTask({ ...newTask, name: text })}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Description"
+                            value={newTask.data}
+                            onChangeText={(text) => setNewTask({ ...newTask, data: text })}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Heure (ex: 14:00)"
+                            value={newTask.time}
+                            onChangeText={(text) => setNewTask({ ...newTask, time: text })}
+                        />
+                       <TouchableOpacity onPress={() => setCalendarVisible(!calendarVisible)} style={styles.datePickerButton}>
+    <Text style={styles.datePickerText}>
+        {newTask.date ? `Date sélectionnée : ${newTask.date}` : 'Choisir la date'}
+    </Text>
+</TouchableOpacity>
 
-                <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalHeader}>
-                                {editingTask ? 'Modifier la Tâche' : 'Nouvelle Tâche'}
-                            </Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Nom de la tâche"
-                                value={newTask.name}
-                                onChangeText={(text) => setNewTask({ ...newTask, name: text })}
-                            />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Description"
-                                value={newTask.data}
-                                onChangeText={(text) => setNewTask({ ...newTask, data: text })}
-                            />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Heure (ex: 14:00)"
-                                value={newTask.time}
-                                onChangeText={(text) => setNewTask({ ...newTask, time: text })}
-                            />
+{calendarVisible && (
+    <View style={styles.calendarContainer}>
+        <Calendar
+            current={newTask.date || moment().format('YYYY-MM-DD')}
+            onDayPress={(day) => {
+                const selectedDate = day.dateString;
+                setNewTask((prev) => ({ ...prev, date: selectedDate }));
+                setCalendarVisible(false);
+            }}
+            monthFormat={'yyyy MM'}
+        />
+    </View>
+)}
 
-                            <TouchableOpacity onPress={showCalendar} style={styles.datePickerButton}>
-                                <Text style={styles.datePickerText}>
-                                    {newTask.date ? `Date sélectionnée : ${newTask.date}` : 'Choisir la date'}
+                        <Text style={styles.colorText}>Choisir la couleur de la tâche :</Text>
+                        <Picker
+                            selectedValue={selectedColor}
+                            style={styles.picker}
+                            onValueChange={(itemValue) => setSelectedColor(itemValue)}>
+                            <Picker.Item label="Urgent (Rouge)" value="#FF6347" />
+                            <Picker.Item label="Important (Vert)" value="#32CD32" />
+                            <Picker.Item label="Normal (Bleu)" value="#1E90FF" />
+                        </Picker>
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity style={styles.saveButton} onPress={handleAddOrEditTask}>
+                                <Text style={styles.saveButtonText}>
+                                    {editingTask ? 'Modifier' : 'Ajouter'}
                                 </Text>
                             </TouchableOpacity>
-
-                            {calendarVisible && (
-                                <View style={styles.calendarContainer}>
-                                    <Calendar
-                                        current={newTask.date || moment().format('YYYY-MM-DD')}
-                                        onDayPress={(day) => handleConfirmDate(day.dateString)}
-                                        monthFormat={'yyyy MM'}
-                                    />
-                                </View>
-                            )}
-
-                            <Text style={styles.colorText}>Choisir la couleur de la tâche :</Text>
-                            <Picker
-                                selectedValue={selectedColor}
-                                style={styles.picker}
-                                onValueChange={(itemValue) => setSelectedColor(itemValue)}>
-                                <Picker.Item label="Urgent (Rouge)" value="#FF6347" />
-                                <Picker.Item label="Important (Vert)" value="#32CD32" />
-                                <Picker.Item label="Normal (Bleu)" value="#1E90FF" />
-                            </Picker>
-
-                            <View style={styles.modalButtons}>
-                                <TouchableOpacity style={styles.saveButton} onPress={handleAddOrEditTask}>
-                                    <Text style={styles.saveButtonText}>
-                                        {editingTask ? 'Modifier' : 'Ajouter'}
-                                    </Text>
-                                </TouchableOpacity>
-                                {editingTask && (
-                                    <TouchableOpacity
-                                        style={styles.deleteButton}
-                                        onPress={() => handleDeleteTask(editingTask)}>
-                                        <Text style={styles.deleteButtonText}>Supprimer</Text>
-                                    </TouchableOpacity>
-                                )}
+                            {editingTask && (
                                 <TouchableOpacity
-                                    style={styles.cancelButton}
-                                    onPress={() => setModalVisible(false)}>
-                                    <Text style={styles.cancelButtonText}>Annuler</Text>
+                                    style={styles.deleteButton}
+                                    onPress={() => handleDeleteTask(editingTask)}>
+                                    <Text style={styles.deleteButtonText}>Supprimer</Text>
                                 </TouchableOpacity>
-                            </View>
+                            )}
+                            <TouchableOpacity
+                                style={styles.cancelButton}
+                                onPress={() => setModalVisible(false)}>
+                                <Text style={styles.cancelButtonText}>Annuler</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>
-            </SafeAreaView>
-        );
-    } else if (currentScreen === 'DayAgenda') {
-        return (
-            <SafeAreaView style={styles.container}>
-                <TouchableOpacity onPress={() => setCurrentScreen('Home')} style={styles.backButton}>
-                    <Text style={styles.backButtonText}>← Retour</Text>
-                </TouchableOpacity>
-                <Text style={styles.header}>Agenda du {selectedDate}</Text>
-                <FlatList
-                    data={tasks[selectedDate] || []}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => renderTask(item)}
-                    ListEmptyComponent={<Text style={styles.noTasksText}>Aucune tâche pour ce jour.</Text>}
-                />
-                {renderAddButton()}
-            </SafeAreaView>
-        );
-    }
+                </View>
+            </Modal>
+        </SafeAreaView>
+    );
 }
+
 
 const styles = StyleSheet.create({
     container: {
