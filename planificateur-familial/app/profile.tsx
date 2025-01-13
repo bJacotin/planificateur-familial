@@ -15,12 +15,12 @@ import * as NavigationBar from 'expo-navigation-bar';
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
-const Login = () => {
+const Profile = () => {
 
     React.useEffect(() => {
         if (Platform.OS === 'android') {
-            NavigationBar.setBackgroundColorAsync('#FED77C'); // Barre de navigation transparente
-            NavigationBar.setButtonStyleAsync('light'); // Icônes en blanc
+            NavigationBar.setBackgroundColorAsync('#FED77C');
+            NavigationBar.setButtonStyleAsync('light'); 
         }
     }, []);
 
@@ -107,7 +107,7 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Profile;
 
 const styles = StyleSheet.create({
 
