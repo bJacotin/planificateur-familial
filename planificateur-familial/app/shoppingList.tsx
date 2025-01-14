@@ -1,21 +1,22 @@
+import React, { useEffect, useState } from 'react';
 import {
-    Keyboard,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-    ScrollView,
-    Modal,
-    TouchableWithoutFeedback,
-    Image
-  } from "react-native";
-  import { LinearGradient } from 'expo-linear-gradient';
-  import { useState, useEffect } from 'react';
-  import AsyncStorage from '@react-native-async-storage/async-storage';
-  import { Share } from "react-native";
-  import { router } from "expo-router";
-  
+  Keyboard,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ScrollView,
+  Modal,
+  TouchableWithoutFeedback,
+  Image,
+  Share,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { doc, setDoc, getDoc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
+import { FIREBASE_FIRESTORE } from '../FirebaseConfig';
+import { router } from 'expo-router';
+
   type ShoppingItem = {
     name: string;
     quantity: string;
@@ -24,58 +25,81 @@ import {
   
   
   export default function ShoppingListApp() {
-    const [itemName, setItemName] = useState<string>("");
-    const [quantity, setQuantity] = useState<string>("");
+    const [itemName, setItemName] = useState<string>('');
+    const [quantity, setQuantity] = useState<string>('');
     const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
   
-    useEffect(() => {
-        loadShoppingList();
-    }, []);
+    const [listId, setListId] = useState<string>('famille123'); // ID unique de la liste collaborative
   
+    useEffect(() => {
+      loadShoppingList();
+    }, []);
+
     useEffect(() => {
         saveShoppingList();
     }, [shoppingList]);
+
   
-    const addItem = () => {
-        if (itemName.trim().length > 0 && quantity.trim().length > 0) {
-            Keyboard.dismiss();
-            setShoppingList([...shoppingList, { name: itemName, quantity, isBought: false }]);
-            setItemName("");
-            setQuantity("");
-            setModalVisible(false);
+    const loadShoppingList = () => {
+      const listRef = doc(FIREBASE_FIRESTORE, 'shoppingLists', listId);
+      const unsubscribe = onSnapshot(listRef, (doc) => {
+        if (doc.exists()) {
+          setShoppingList(doc.data().items || []);
+        } else {
+          console.error('Liste introuvable');
         }
-    };
+      });
   
-    const toggleBoughtStatus = (index: number) => {
-        const updatedList = [...shoppingList];
-        updatedList[index].isBought = !updatedList[index].isBought;
-        setShoppingList(updatedList);
-    };
-  
-    const deleteItem = (index: number) => {
-        const updatedList = [...shoppingList];
-        updatedList.splice(index, 1);
-        setShoppingList(updatedList);
-    };
-  
-    const loadShoppingList = async () => {
-        try {
-            const savedList = await AsyncStorage.getItem('shoppingList');
-            if (savedList !== null) {
-                setShoppingList(JSON.parse(savedList));
-            }
-        } catch (error) {
-            console.error('Erreur lors du chargement de la liste', error);
-        }
+      return unsubscribe;
     };
   
     const saveShoppingList = async () => {
-        try {
-            await AsyncStorage.setItem('shoppingList', JSON.stringify(shoppingList));
-        } catch (error) {
-            console.error('Erreur lors de la sauvegarde de la liste', error);
-        }
+      const listRef = doc(FIREBASE_FIRESTORE, 'shoppingLists', listId);
+      try {
+        await updateDoc(listRef, {
+          items: shoppingList,
+        });
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde de la liste', error);
+      }
+    };
+  
+    const addItem = () => {
+      if (itemName.trim().length > 0 && quantity.trim().length > 0) {
+        const newItem = { name: itemName, quantity, isBought: false };
+        const updatedList = [...shoppingList, newItem];
+        setShoppingList(updatedList);
+        saveShoppingList(); // Sauvegarder immédiatement
+        setItemName('');
+        setQuantity('');
+        setModalVisible(false);
+      }
+    };
+  
+    const toggleBoughtStatus = (index: number) => {
+      const updatedList = [...shoppingList];
+      updatedList[index].isBought = !updatedList[index].isBought;
+      setShoppingList(updatedList);
+      saveShoppingList();
+    };
+  
+    const deleteItem = (index: number) => {
+      const updatedList = [...shoppingList];
+      updatedList.splice(index, 1);
+      setShoppingList(updatedList);
+      saveShoppingList();
+    };
+  
+    const addMemberToList = async (userId: string) => {
+      const listRef = doc(FIREBASE_FIRESTORE, 'shoppingLists', listId);
+      try {
+        await updateDoc(listRef, {
+          members: arrayUnion(userId),
+        });
+      } catch (error) {
+        console.error('Erreur lors de l\'ajout du membre', error);
+      }
     };
 
     const shareList = async () => {
@@ -106,7 +130,8 @@ import {
             console.error("Erreur lors du partage", error);
         }
     };
-  
+
+
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <LinearGradient
@@ -120,7 +145,7 @@ import {
             <TouchableOpacity onPress={shareList} style={styles.shareButton}>
                 <Text style={styles.shareButtonText}>Partager</Text>
             </TouchableOpacity>
-            </LinearGradient>
+            </LinearGradient>  
             <View style={styles.container}>
                 <ScrollView>
                     {shoppingList.map((item, index) => (
@@ -137,6 +162,7 @@ import {
                                 <Text style={styles.itemText}>
                                     {item.name} ({item.quantity})
                                 </Text>
+                                
                             </View>
                         </TouchableOpacity>
                     ))}
@@ -150,7 +176,6 @@ import {
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
-  
             <Modal
                 animationType="slide"
                 transparent={true}
