@@ -3,10 +3,10 @@ import {StyleSheet, View, Image, ImageSourcePropType} from "react-native";
 
 type Props = {
     image: ImageSourcePropType;
-    isLocal?: boolean; // Indique si l'image est locale
+
 };
 
-export const ProfilePicture = ({image, isLocal = true}: Props) => {
+export const ProfilePicture = ({image}: Props) => {
     return (
         <View style={styles.container}>
             <Image 
@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     image: {
-        width: '85%',
-        height: '85%',
+        width: '89%',
+        height: '89%',
         borderRadius:1000,
         alignSelf: 'center',
     }
