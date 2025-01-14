@@ -98,7 +98,7 @@ const Profile = () => {
                         }
                     }
 
-                    // If pp is a valid string (not empty), update state
+
                     if (pp) {
                         console.log("Image récupérée : ", pp);
                         setPPBase64(pp);
@@ -116,7 +116,7 @@ const Profile = () => {
 
     fetchProfilePicture();
 
-    useEffect(() => {console.log('test')
+    useEffect(() => {
         const fetchUserData = async () => {
             try {
                 const userUID = FIREBASE_AUTH.currentUser?.uid;
@@ -163,12 +163,9 @@ const Profile = () => {
             const base64Image = await convertLocalImageToBase64(uri);
 
             if (base64Image) {
-
                 await saveProfilePictureToFirestore(base64Image);
-
                 setPPBase64(base64Image);
             }
-
         } else {
             console.log("Image selection cancelled");
         }
