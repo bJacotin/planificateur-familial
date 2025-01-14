@@ -30,24 +30,10 @@ const ScreenHeight = Dimensions.get('window').height;
 export default function Index() {
     const [name, setName] = useState<string>("Jean-Michel")
     const router = useRouter();
-    const handleToDoClick = () => {
-        router.push('/todo');
-    };
+
     const handleProfileClick = () => {
         router.push('/profile' as RelativePathString);
     };
-    const pathname = usePathname();
-    useEffect(() => {
-        const handleBackPress = () => {
-            return pathname === '/login';
-        };
-
-        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-        };
-    }, [pathname]);
-
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
             if (user) {
@@ -58,24 +44,37 @@ export default function Index() {
             }
         });
         return () => unsubscribe();
+
     }, [router]);
+    const pathname = usePathname();
+    useEffect(() => {
+
+        if (pathname=== '/') {
+            fetchProfilePicture();
+        }
+    }, [pathname]);
+
+
 
     useEffect(() => {
         if (Platform.OS === 'android') {
             NavigationBar.setBackgroundColorAsync('#FFFFFF');
             NavigationBar.setButtonStyleAsync('light');
         }
+
     }, []);
 
 
     const [userPP, setUserPP] = useState<string>('');
     const fetchProfilePicture = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('test')
         if (FIREBASE_AUTH.currentUser.uid) {
             const docRef = doc(FIREBASE_FIRESTORE, "users", FIREBASE_AUTH.currentUser.uid);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 const profilePictureBase64 = docSnap.data();
-                const userName = setName(profilePictureBase64.name)
+                setName(profilePictureBase64.name)
                 if (profilePictureBase64) {
                     let pp = '';
 
@@ -105,7 +104,7 @@ export default function Index() {
         }
     };
 
-    fetchProfilePicture();
+
 
     return (
         <LinearGradient
@@ -141,17 +140,17 @@ export default function Index() {
                 </View>
                 <Text style={styles.servicesText}>Vos services </Text>
                 <View style={styles.servicesIcons}>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List"/>
-                    <IconServices image={require('@/assets/images/agenda.png')} title="Agenda"/>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo"/>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo"/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List" route="/todo"/>
+                    <IconServices image={require('@/assets/images/agenda.png')} title="Agenda" route="/agenda"/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo" route={"/family"}/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo" route={"/family"}/>
                 </View>
 
                 <View style={styles.servicesIcons}>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo"/>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo"/>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo"/>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo"/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo" route={"/family"}/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo" route={"/family"}/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo" route={"/family"}/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo" route={"/family"}/>
 
 
                 </View>

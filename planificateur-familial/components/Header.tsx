@@ -11,7 +11,7 @@ const Header = ({text} :Props ) => {
     return (
         <TouchableOpacity style={styles.header} onPress={() =>router.push('/')} > // refer to index /
             <LinearGradient
-                colors={['#C153F8', '#E15D5A']} // Dégradé
+                colors={['#C153F8', '#E15D5A']}
                 style={styles.buttonWrap}
                 start={{ x: 1, y: -0.2 }}
                 end={{ x: 0, y: 1 }}
@@ -26,7 +26,7 @@ const Header = ({text} :Props ) => {
 
 const styles = StyleSheet.create({
     header: {
-        marginTop:50,
+        marginTop:25,
         width:'100%',
         height:70,
         display:"flex",

@@ -1,24 +1,30 @@
 import React from 'react'
-import {StyleSheet, View, Image, ImageSourcePropType, Text} from "react-native";
+import {StyleSheet, View, Image, ImageSourcePropType, Text, TouchableOpacity} from "react-native";
+import {RelativePathString, router, useRouter} from "expo-router";
 
 type Props = {
     image: ImageSourcePropType;
-    isLocal?: boolean; // Indique si l'image est locale
     title: string;
+    route: string;
+
 };
 
-export const IconServices = ({image, isLocal = true, title}: Props) => {
+export const IconServices = ({image, title, route}: Props) => {
+    const router = useRouter();
+    const handlePress = () => {
+        router.push(route as RelativePathString);
+    };
     return (
-        <>
-        <View style={styles.mainContainer}>
+
+        <TouchableOpacity onPress={handlePress} style={styles.mainContainer}>
             <View style={styles.container}>
                 <Image
                     style={styles.image}
                     source={image} />
             </View>
             <Text style={styles.title}>{title}</Text>
-        </View>
-        </>
+        </TouchableOpacity>
+
 
 
     );
