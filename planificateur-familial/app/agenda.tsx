@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Calendar } from 'react-native-calendars';
+import { LinearGradient } from 'expo-linear-gradient';
 import moment from 'moment';
-
 
 const initialTasks = {};
 
@@ -26,9 +26,10 @@ export default function App() {
     const [selectedColor, setSelectedColor] = useState('');
     const [calendarVisible, setCalendarVisible] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
+    const [selectedType, setSelectedType] = useState(null);
 
     const handleAddOrEditTask = () => {
-        if (!newTask.name || !newTask.date || !newTask.time) {
+        if (!newTask.name || !newTask.data || !newTask.date || !newTask.time) {
             alert('Veuillez renseigner un nom, une date et une heure pour la tâche.');
             return;
         }
@@ -53,6 +54,62 @@ export default function App() {
         setNewTask({ name: '', data: '', date: '', color: '', time: '' });
         setEditingTask(null);
         setModalVisible(false);
+    };
+
+    const handleAddOrEditEvent = () => {
+      if (!newTask.name || !newTask.date || !newTask.time) {
+          alert('Veuillez renseigner un nom, une date et une heure pour l\'événement.');
+          return;
+      }
+
+      if (editingTask) {
+          const updatedTasks = { ...tasks };
+          const taskIndex = updatedTasks[newTask.date]?.findIndex(t => t.id === editingTask.id);
+          if (taskIndex !== -1) {
+              updatedTasks[newTask.date][taskIndex] = { ...newTask, color: selectedColor };
+              setTasks(updatedTasks);
+          }
+      } else {
+          setTasks((prevTasks) => ({
+              ...prevTasks,
+              [newTask.date]: [
+                  ...(prevTasks[newTask.date] || []),
+                  { id: Date.now().toString(), ...newTask, color: selectedColor },
+              ],
+          }));
+      }
+
+      setNewTask({ name: '', data: '', date: '', color: '', time: '' });
+      setEditingTask(null);
+      setModalVisible(false);
+    };
+
+    const handleAddOrEditAnniversary = () => {
+      if (!newTask.name || !newTask.date || !newTask.time) {
+          alert('Veuillez renseigner un nom, une date et une heure pour l\'anniversaire');
+          return;
+      }
+
+      if (editingTask) {
+          const updatedTasks = { ...tasks };
+          const taskIndex = updatedTasks[newTask.date]?.findIndex(t => t.id === editingTask.id);
+          if (taskIndex !== -1) {
+              updatedTasks[newTask.date][taskIndex] = { ...newTask, color: selectedColor };
+              setTasks(updatedTasks);
+          }
+      } else {
+          setTasks((prevTasks) => ({
+              ...prevTasks,
+              [newTask.date]: [
+                  ...(prevTasks[newTask.date] || []),
+                  { id: Date.now().toString(), ...newTask, color: selectedColor },
+              ],
+          }));
+      }
+
+      setNewTask({ name: '', data: '', date: '', color: '', time: '' });
+      setEditingTask(null);
+      setModalVisible(false);
     };
 
     const handleDateSelect = (date) => {
@@ -97,12 +154,13 @@ export default function App() {
     };
 
     const renderAddButton = () => (
-        <TouchableOpacity style={styles.addButton} onPress={handleOpenAddTaskModal}>
-            <Text style={styles.addButtonText}>Ajouter une tâche</Text>
-        </TouchableOpacity>
-    );
+      <TouchableOpacity style={styles.addButton} onPress={handleOpenAddTaskModal}>
+              <Text style={styles.addButtonText}>Ajouter une tâche</Text>
+      </TouchableOpacity>
+  );
 
     const renderTaskColor = (color) => ({ backgroundColor: color || 'lightblue' });
+
 
     const renderCalendar = () => {
         const markedDates = Object.keys(tasks).reduce((acc, date) => {
@@ -145,8 +203,10 @@ export default function App() {
     );
 
     const renderScreen = () => {
+      
         if (currentScreen === 'DayAgenda') {
             return (
+              <LinearGradient colors={['#4FE2FF', '#004B5A', '#002C35']} style={styles.gradientBackground}>
                 <SafeAreaView style={styles.container}>
                     <TouchableOpacity onPress={() => setCurrentScreen('Home')} style={styles.backButton}>
                         <Text style={styles.backButtonText}>← Retour</Text>
@@ -160,6 +220,8 @@ export default function App() {
                     />
                     {renderAddButton()}
                 </SafeAreaView>
+              </LinearGradient>
+
             );
         }
         return (
@@ -171,6 +233,7 @@ export default function App() {
     };
 
     return (
+      <LinearGradient colors={['#4FE2FF', '#004B5A', '#002C35']} style={styles.gradientBackground}>
         <SafeAreaView style={styles.container}>
             {renderScreen()}
             <Modal visible={isModalVisible} animationType="slide" transparent={true}>
@@ -228,130 +291,143 @@ export default function App() {
                                 <Text style={styles.cancelButtonText}>Annuler</Text>
                             </TouchableOpacity>
                         </View>
-                    </View>
+                        
+                  </View>
+                    <TouchableOpacity onPress={handleAddOrEditEvent}>
+                      <Text>Événement</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleAddOrEditTask}>
+                      <Text>Tâches</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleAddOrEditAnniversary}>
+                      <Text>Anniversaire</Text>
+                    </TouchableOpacity>
                 </View>
             </Modal>
         </SafeAreaView>
+      </LinearGradient>
+
     );
 }
 
-
 const styles = StyleSheet.create({
   container: {
-      flex: 1,
-      backgroundColor: '#fffbf2',
-      paddingTop: 30,
+    flex: 1,
+    paddingTop: 30,
+  },
+  gradientBackground: {
+    flex: 1,
   },
   headerContainer: {
-      marginBottom: 30,
-      paddingHorizontal: 20,
+    marginBottom: 30,
+    paddingHorizontal: 20,
   },
   header: {
-      fontSize: 32,
-      fontWeight: 'bold',
-      textAlign: 'center',
-      color: '#003366',
-      letterSpacing: 2,
-      marginBottom: 10,
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#ffffff',
+    letterSpacing: 2,
+    marginBottom: 10,
   },
   addButton: {
-      backgroundColor: '#0099cc',
-      padding: 20,
-      borderRadius: 60,
-      position: 'absolute',
-      bottom: 20,
-      right: 20,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.3,
-      shadowRadius: 10,
+    backgroundColor: '#36B1CA',
+    padding: 20,
+    borderRadius: 60,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   addButtonText: {
-      color: 'white',
-      fontSize: 20,
-      fontWeight: 'bold',
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   dayContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#80e0e6',
-      borderRadius: 20,
-      padding: 30,
-      marginVertical: 15,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#36B1CA',
+    borderRadius: 20,
+    padding: 30,
+    marginVertical: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   dayNumber: {
-      fontSize: 50,
-      fontWeight: '700',
-      color: '#003366',
-      marginBottom: 15,
+    fontSize: 50,
+    fontWeight: '700',
+    color: '#36B1CA',
+    marginBottom: 15,
   },
   dayTasksContainer: {
-      marginTop: 10,
-      padding: 15,
-      backgroundColor: '#f7f7f7',
-      borderRadius: 15,
-      width: '100%',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
+    marginTop: 10,
+    padding: 15,
+    backgroundColor: '#36B1CA',
+    borderRadius: 15,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   taskSummary: {
-      fontSize: 18,
-      color: '#003366',
-      marginBottom: 10,
+    fontSize: 18,
+    color: '#36B1CA',
+    marginBottom: 10,
   },
   item: {
-      flexDirection: 'row',
-      padding: 15,
-      marginBottom: 12,
-      backgroundColor: '#ffffff',
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: '#e3e3e3',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.1,
-      shadowRadius: 5,
+    flexDirection: 'row',
+    padding: 15,
+    marginBottom: 12,
+    backgroundColor: '#4FE2FF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#4FE2FF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
   taskDetails: {
-      flex: 1,
-      paddingRight: 15,
+    flex: 1,
+    paddingRight: 15,
   },
   taskName: {
-      fontWeight: 'bold',
-      color: '#003366',
-      fontSize: 18,
+    fontWeight: 'bold',
+    color: '#004B5A',
+    fontSize: 18,
   },
   taskData: {
-      color: '#666',
-      fontSize: 16,
+    color: '#000000',
+    fontSize: 16,
   },
   taskTime: {
-      color: '#666',
-      fontSize: 14,
+    color: '#000000',
+    fontSize: 14,
   },
   editButton: {
-      justifyContent: 'center',
-      paddingHorizontal: 15,
+    justifyContent: 'center',
+    paddingHorizontal: 15,
   },
   editButtonText: {
-      color: '#00aaff',
-      fontWeight: 'bold',
+    color: '#004B5A',
+    fontWeight: 'bold',
   },
   modalContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#004B5A',
     padding: 15,
     borderRadius: 10,
     width: '80%',
@@ -359,100 +435,103 @@ const styles = StyleSheet.create({
     minHeight: 200,
     alignItems: 'center',
     justifyContent: 'center',
-},
+  },
   modalHeader: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#003366',
-      marginBottom: 15,
-      textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4FE2FF',
+    marginBottom: 15,
+    textAlign: 'center',
   },
   input: {
-      height: 35,
-      borderColor: '#ddd',
-      borderWidth: 1,
-      marginBottom: 15,
-      paddingLeft: 15,
-      backgroundColor: '#f8f8f8',
-      borderRadius: 10,
-      fontSize: 16,
-      width: '100%',
+    height: 40,
+    borderColor: '#4FE2FF',
+    borderWidth: 1,
+    marginBottom: 15,
+    paddingLeft: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    fontSize: 14,
+    width: '100%',
   },
   datePickerButton: {
-      padding: 10,
-      backgroundColor: '#00aaff',
-      borderRadius: 20,
-      alignItems: 'center',
-      marginBottom: 15,
+    padding: 10,
+    backgroundColor: '#4FE2FF',
+    borderRadius: 20,
+    alignItems: 'center',
+    marginBottom: 15,
   },
   datePickerText: {
-      color: 'white',
-      fontSize: 16,
+    color: 'white',
+    fontSize: 16,
   },
   picker: {
-      backgroundColor: '#f8f8f8',
-      borderRadius: 10,
-      height: 50,
+    backgroundColor: '#4FE2FF',
+    borderRadius: 10,
+    height: 40,
   },
   modalButtons: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
   },
   saveButton: {
-      backgroundColor: '#28a745',
-      padding: 15,
-      borderRadius: 10,
-      flex: 1,
-      alignItems: 'center',
-      marginRight: 10,
+    backgroundColor: '#4FE2FF',
+    padding: 15,
+    borderRadius: 10,
+    flex: 1,
+    alignItems: 'center',
+    marginRight: 10,
   },
   deleteButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: '#004B5A',
+    marginTop: 10,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 90,
-    height: 40,
-},
+    minWidth: 50,
+  },
   cancelButton: {
-      backgroundColor: '#6c757d',
-      padding: 15,
-      borderRadius: 10,
-      flex: 1,
-      alignItems: 'center',
+    backgroundColor: '#6c757d',
+    padding: 15,
+    borderRadius: 10,
+    flex: 1,
+    alignItems: 'center',
   },
   saveButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   deleteButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   cancelButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
   noTasksText: {
-      textAlign: 'center',
-      color: '#aaa',
-      fontSize: 18,
+    textAlign: 'center',
+    color: '#ffffff',
+    fontSize: 18,
   },
   backButton: {
-      padding: 15,
-      backgroundColor: '#003366',
-      borderRadius: 10,
-      marginTop: 20,
+    padding: 15,
+    backgroundColor: '#004B5A',
+    borderRadius: 10,
+    marginTop: 20,
   },
   backButtonText: {
-      color: 'white',
-      fontWeight: 'bold',
-      fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
+  
 });
+
+
