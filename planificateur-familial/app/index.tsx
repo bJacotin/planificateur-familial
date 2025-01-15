@@ -28,7 +28,7 @@ const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 export default function Index() {
-    const [name, setName] = useState<string>("Jean-Michel")
+    const [name, setName] = useState<string>("")
     const router = useRouter();
 
     const handleProfileClick = () => {
@@ -140,7 +140,7 @@ export default function Index() {
                 </View>
                 <Text style={styles.servicesText}>Vos services </Text>
                 <View style={styles.servicesIcons}>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List" route="/todo"/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List" route="/homeToDo"/>
                     <IconServices image={require('@/assets/images/agenda.png')} title="Agenda" route="/agenda"/>
                     <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={"/family"}/>
                     <IconServices image={''} title="" route={"/"}/>
