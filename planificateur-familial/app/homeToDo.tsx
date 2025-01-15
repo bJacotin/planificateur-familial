@@ -1,3 +1,4 @@
+
 import {
     BackHandler,
     Button,
@@ -122,6 +123,7 @@ export default function homeToDo() {
                 label: family.name,
                 value: family.id,
                 members: family.members || [],
+                owner: family.owner
             }));
             setAllFamilies(formattedFamilies);
         };
@@ -145,7 +147,9 @@ export default function homeToDo() {
                     const memberDocRef = doc(FIREBASE_FIRESTORE, 'users', memberId); // user de merde a la con
                     const memberDocSnap = await getDoc(memberDocRef);
                     const memberData = memberDocSnap.exists() ? memberDocSnap.data() : null;
-
+                    if (memberId === FIREBASE_AUTH.currentUser.uid) {
+                        return null;
+                    }
                     return {
                         label: memberData.name ,
                         value: memberId
@@ -232,7 +236,7 @@ export default function homeToDo() {
                             />
 
                             <DropDownPicker
-                                
+
                                 open={openMembers}
                                 value={selectedMembers}
                                 items={membersInFamily}

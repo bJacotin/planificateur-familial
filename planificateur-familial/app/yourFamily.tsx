@@ -163,7 +163,10 @@ const YourFamily = () => {
             members: arrayUnion(userId),
             joinRequests: arrayRemove(userId),
         });
-
+        const memberRef = doc(FIREBASE_FIRESTORE, "users", userId);
+        await updateDoc(memberRef, {
+            families: arrayUnion(familyId),
+        });
 
         fetchFamilyMembers();
     };

@@ -154,7 +154,7 @@ const Profile = () => {
             mediaTypes: "images",
             allowsEditing: true,
             aspect: [3, 3],
-            quality: 0.2,
+            quality: 0.1,
         });
 
         if (!result.canceled && result.assets && result.assets.length > 0) {
