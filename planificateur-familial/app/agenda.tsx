@@ -49,13 +49,18 @@ export default function App() {
             }));
         }
 
-        resetModal();
+        setNewTask({ name: '', data: '', date: '', time: '' });
+        setEditingTask(null);
+        setModalVisible(false);
     };
 
     const handleDateSelect = (date) => {
         setSelectedDate(date);
         setCurrentScreen('DayAgenda');
     };
+
+    const showCalendar = () => setCalendarVisible(true);
+    const hideCalendar = () => setCalendarVisible(false);
 
     const handleConfirmDate = (date) => {
         const formattedDate = moment(date).format('YYYY-MM-DD');
@@ -83,18 +88,11 @@ export default function App() {
                 delete updatedTasks[task.date];
             }
             setTasks(updatedTasks);
+            setEditingTask(null);
+            setModalVisible(false);
         }
-        resetModal();
-    };
-
-    const resetModal = () => {
-        setNewTask({ name: '', data: '', date: '', time: '' });
         setEditingTask(null);
-        setModalVisible(false);
     };
-
-    const showCalendar = () => setCalendarVisible(true);
-    const hideCalendar = () => setCalendarVisible(false);
 
     const renderAddButton = () => (
         <TouchableOpacity style={styles.addButton} onPress={handleOpenAddTaskModal}>
@@ -119,7 +117,7 @@ export default function App() {
             <Calendar
                 current={selectedDate || moment().format('YYYY-MM-DD')}
                 onDayPress={(day) => {
-                    setSelectedDate(day.dateString);
+                    setSelectedDate(day.date);
                     setCurrentScreen('DayAgenda');
                 }}
                 monthFormat={'yyyy MM'}
@@ -200,9 +198,9 @@ export default function App() {
                                 value={newTask.time}
                                 onChangeText={(text) => setNewTask({ ...newTask, time: text })}
                             />
-                            <TouchableOpacity onPress={showCalendar} style={styles.datePickerButton}>
+                            <TouchableOpacity onPress={() => setCalendarVisible(!calendarVisible)} style={styles.datePickerButton}>
                                 <Text style={styles.datePickerText}>
-                                    {newTask.date ? `Date sélectionnée : ${newTask.date}` : 'Choisir la date'}
+                                    {newTask.date ? `Date sélectionnée: ${newTask.date}` : 'Choisir la date'}
                                 </Text>
                             </TouchableOpacity>
 
@@ -211,9 +209,9 @@ export default function App() {
                                     <Calendar
                                         current={newTask.date || moment().format('YYYY-MM-DD')}
                                         onDayPress={(day) => {
-                                            const selectedDate = day.dateString;
+                                            const selectedDate = day.date;
                                             setNewTask((prev) => ({ ...prev, date: selectedDate }));
-                                            hideCalendar();
+                                            setCalendarVisible(false);
                                         }}
                                         monthFormat={'yyyy MM'}
                                     />
@@ -239,7 +237,6 @@ export default function App() {
         </LinearGradient>
     );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -458,5 +455,3 @@ const styles = StyleSheet.create({
   },
   
 });
-
-
