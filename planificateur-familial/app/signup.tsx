@@ -57,7 +57,7 @@ const signup = () => {
         <Text style={[styles.textBulle, { zIndex: 8 }]}>{tukkiText}</Text>
       </View>
 
-      <StatusBar barStyle="dark-content" backgroundColor="rgba(255, 255, 255, 0)" />
+
       <LinearGradient
         colors={['#4FE2FF', '#004B5A', '#002C35']}
         locations={[0, 0.8, 1]}
@@ -65,7 +65,7 @@ const signup = () => {
         end={{ x: 0.5, y: 1 }}
         style={styles.mainContainer}
       >
-        <TouchableOpacity onPress={() => router.push('/')} style={[{ zIndex: 4 }, { position: 'absolute' }]}> {/* refer to index / */}
+        <TouchableOpacity onPress={() => router.push('/')} style={[{ zIndex: 4 }, { position: 'absolute' }]}>
           <LinearGradient
             colors={['#4FE2FF', '#4FE2FF']}
             style={styles.buttonWrap}
