@@ -11,15 +11,7 @@ const Task = ({ title, isChecked, details }: Props) => {
     return (
         <View style = {styles.taskContainer}>
             <View style = {styles.leftContainer}>
-                <Image
-                    style={styles.checkButton}
-                    source={
-                        isChecked
-                            ? require("@/assets/images/checkedCircle.png")
-                            : require("@/assets/images/uncheckedCircle.png")
-                    }
 
-                />
                 <View style={styles.taskDataContainer}>
                     <Text numberOfLines={1}
                           ellipsizeMode="tail"
@@ -28,7 +20,12 @@ const Task = ({ title, isChecked, details }: Props) => {
                           ellipsizeMode="tail"
                           style={styles.details}>{details}</Text>
                 </View>
+                <View
+                    style={styles.checkButton}>
 
+                    
+
+                </View>
             </View>
 
         </View>
@@ -39,24 +36,20 @@ const styles = StyleSheet.create({
 
     leftContainer: {
         flexDirection: "row",
+        justifyContent: 'space-between',
+
         alignItems: 'center',
-        maxWidth:'80%'
+        width:'100%'
     },
     taskContainer: {
-        marginTop:8,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#EBEBEB',
         height: 60,
-        borderBottomRightRadius: 35,
-        borderBottomLeftRadius: 35,
-        borderTopLeftRadius:25,
-        borderTopRightRadius:25,
+        width: '100%',
         flexDirection:"row",
         justifyContent: 'space-between',
-        padding:10,
         elevation:5,
-        margin:10,
-        borderWidth:2,
-        borderBottomWidth:5,
+
+
 
     },
     button: {
@@ -82,19 +75,16 @@ const styles = StyleSheet.create({
         width:24,
         height:24,
         marginLeft:9,
-        marginRight:10
+        marginRight:10,
+        backgroundColor:"red",
     },
     title: {
-        marginTop:4,
-        fontFamily:"Poppins_Medium",
-        fontSize : 14,
+marginLeft:20,        fontFamily:"Poppins_SemiBold",
+        fontSize : 24,
         textAlign:"left",
-        //backgroundColor:"red",
-        height:22
-
     },
     details: {
-        marginLeft:10,
+        marginLeft:20,
         fontFamily:"Poppins_Regular",
         fontSize : 10,
         textAlign:"left",

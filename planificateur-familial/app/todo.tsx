@@ -8,13 +8,21 @@ import {
     ScrollView,
     Modal,
     TouchableWithoutFeedback,
-    Animated
+    Animated,
+    Dimensions,
+    StatusBar,
+    Image
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import {useState, useEffect, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Task from '@/components/Task';
 import Header from "@/components/Header";
+import { router } from "expo-router";
+
+
+const ScreenWidth = Dimensions.get('window').width;
+const ScreenHeight = Dimensions.get('window').height;
 
 
 
@@ -140,20 +148,40 @@ export default function Todo() {
         }
     }, [deleteModalVisible]);
     return (
-        <View style={{flex:1,backgroundColor:'white'}}>
-            <Header text={'Votre ToDo'}/>
-            <View style={styles.container}>
+        <LinearGradient
+        colors={['#4FE2FF', '#004B5A', '#002C35']}
+        locations={[0, 0.8, 1]}
+        start={{x: 0.5, y: 0}}
+        end={{x: 0.5, y: 1}}
+        style={{height: ScreenHeight * 0.36,marginTop:25}}
+    >
+                        <StatusBar barStyle="dark-content" backgroundColor="#4FE2FF"/>
+            
+                        <View style={styles.header}>
+                                    <TouchableOpacity onPress={() => router.push('/')} style={[{ zIndex: 4 }, { position: 'absolute' }]}>
+                                      <LinearGradient
+                                        colors={['#4FE2FF', '#4FE2FF']}
+                                        style={styles.buttonWrap}
+                                        start={{ x: 1, y: -0.2 }}
+                                        end={{ x: 0, y: 1 }}
+                                      >
+                                        <Image source={require("@/assets/images/arrowLeft.png")} />
+                                      </LinearGradient>
+                                    </TouchableOpacity>
+            
+                        </View>
 
-                <LinearGradient
-                    colors={['#C153F8', '#E15D5A']}
-                    style={styles.mainCard}
-                    start={{ x: 1, y: -0.2 }}
-                    end={{ x: 0, y: 1 }}
-                ><View >
-                    <View style={styles.titleContainer}>
-                        <Text style={styles.headerDetails}>TO DO LIST :</Text>
-                        <Text style={styles.title}>Perso</Text>
+            <View style={styles.container}>
+                   <View style={styles.titleContainer}>
+                        <Image source={require('@/assets/images/arrow.png')} style={{width:50,height:50,opacity:0.5}} />
+                        <Text style={styles.title}>Aujourd'hui</Text>
+                        <Image source={require('@/assets/images/arrow.png')} style={{width:50,height:50,opacity:0.5,transform:[{rotate: '180deg'}]}} />
+
                     </View>
+                    <Task title={"toto"} isChecked={false} details={"aze a"}></Task>
+
+                <View >
+ 
                 </View>
                     <ScrollView style={{marginTop:6}}>
 
@@ -167,11 +195,10 @@ export default function Todo() {
                             )
                         })}
                     </ScrollView>
-                </LinearGradient>
+                </View>
                 <TouchableOpacity style={styles.newTaskButton} onPress={():void => setModalVisible(true)}>
                     <Text style={styles.buttonLabel}>Nouvelle Tâche</Text>
                 </TouchableOpacity>
-            </View>
 
             <Modal // Addtask Modal
                 statusBarTranslucent={true}
@@ -272,7 +299,7 @@ export default function Todo() {
             </Modal>
 
 
-        </View>
+        </LinearGradient>
 
 
 
@@ -296,11 +323,14 @@ const styles = StyleSheet.create({
     },
 
     container: {
-
-        //height:'83%',
-        flex:1,
-        paddingTop:25,
-        padding: 40,
+            elevation: 100,
+            backgroundColor: '#EBEBEB',
+            width: ScreenWidth,
+            height: ScreenHeight,
+            marginTop: 7,
+            borderRadius: 35,
+            paddingTop: ScreenWidth * 0.1
+        
     },
     titre : {
         fontSize: 38,
@@ -311,17 +341,10 @@ const styles = StyleSheet.create({
 
 
     titleContainer: {
-        height:63,
-        width:160,
-        backgroundColor:'white',
-        borderBottomRightRadius: 35,
-        borderBottomLeftRadius: 35,
-        borderTopLeftRadius:25,
-        borderTopRightRadius:25,
+        backgroundColor:'#EBEBEB',
+        alignSelf:"center",
         display: "flex",
-        elevation: 5,
-        borderWidth:2,
-        borderBottomWidth:5,
+        flexDirection: "row",
 
     },
     headerDetails: {
@@ -330,10 +353,10 @@ const styles = StyleSheet.create({
         marginLeft:10
     },
     title: {
-        marginTop:-6,
-        fontWeight:"500",
-        fontSize:24,
-        alignSelf:"center"
+        color: '#3D3D3D',
+        fontSize:30,
+        alignSelf:"center",
+        fontFamily:"Poppins_SemiBold",
     },
     newTaskButton: {
 
@@ -470,6 +493,19 @@ const styles = StyleSheet.create({
     gradientBar: {
         height: '100%',
     },
+    header: {
+        height:100,
+        justifyContent:'center'
+    },
+
+    buttonWrap: {
+        height: 60,
+        width: 80,
+        borderTopRightRadius: 20,
+        borderBottomRightRadius: 20,
+        elevation: 4,
+        zIndex: 4, 
+      },
 
 
 });
