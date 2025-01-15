@@ -21,21 +21,22 @@ import * as NavigationBar from 'expo-navigation-bar';
 import firebase from "firebase/compat";
 import firestore = firebase.firestore;
 import {signOut} from "firebase/auth"
-import {doc, getDoc, onSnapshot, setDoc} from "@firebase/firestore";
+import {arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, setDoc, updateDoc, where} from "@firebase/firestore";
 import {async} from "@firebase/util";
 import RNFS from 'react-native-fs';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import Header from "@/components/Header";
+import {query} from "@firebase/database";
 
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
-const Family = () => {
+const JoinFamily = () => {
     const pathname = usePathname();
-
+    const [familyCode,setFamilyCode] = useState('')
     useEffect(() => {
         const checkIfInFamily = async () => {
             try {
@@ -47,7 +48,7 @@ const Family = () => {
                 console.error("Erreur lors de la vérification de la famille :", error);
             }
         };
-        if (pathname === "/family"){
+        if (pathname === "/joinFamily"){
             checkIfInFamily();
         }
 
@@ -73,6 +74,38 @@ const Family = () => {
         }
 
     };
+    const sendJoinRequest = async (familyCode) => {
+        const auth = FIREBASE_AUTH;
+
+        if (!auth.currentUser) {
+            throw new Error("L'utilisateur n'est pas connecté.");
+        }
+
+        try {
+            // Trouver la famille correspondant au code
+            const familiesCollectionRef = collection(FIREBASE_FIRESTORE, "families");
+
+            const familiesQuery = query(familiesCollectionRef, where("code", "==", familyCode));
+            const familySnapshot = await getDocs(familiesQuery);
+
+            if (familySnapshot.empty) {
+                throw new Error("Aucune famille trouvée avec ce code.");
+            }
+
+
+            const familyDocRef = familySnapshot.docs[0].ref;
+
+
+            await updateDoc(familyDocRef, {
+                joinRequests: arrayUnion(auth.currentUser.uid), //ToDo Pas de doublon possible je pense mais verif quand meme
+            });
+
+            console.log("Demande envoyée avec succès !");
+        } catch (error) {
+            console.error("Erreur lors de l'envoi de la demande :", error.message);
+            throw error;
+        }
+    };
 
     const handleJoinFamily = () => {
         router.push('/joinFamily' as RelativePathString);
@@ -89,19 +122,28 @@ const Family = () => {
             style={styles.mainContainer}>
             <Header text={"Votre Famille"}></Header>
             <View style={styles.content}>
-                <TouchableOpacity style={[styles.button, {backgroundColor:'#36B1CA'}]} onPress={handleCreateFamily}>
+
+                <View style={[styles.fieldWrapper]}>
+                    <TextInput
+                        style={styles.fieldText}
+                        placeholder="Code de la Famille"
+                        placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                        value={familyCode}
+                        autoCapitalize='characters'
+                        onChangeText={(text) => setFamilyCode(text)}
+                    />
+                </View>
+                <TouchableOpacity style={[styles.button, {backgroundColor:'#36B1CA'}]} onPress={() =>sendJoinRequest(familyCode)}>
                     <Text style={styles.buttonText}>Créer une Famille</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.button, {backgroundColor:'#3D3D3D'}]} onPress={handleJoinFamily}>
-                    <Text style={styles.buttonText}>Rejoindre une Famille</Text>
-                </TouchableOpacity>
+
             </View>
         </LinearGradient>
     );
 };
 
-export default Family;
+export default JoinFamily;
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -131,6 +173,30 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 14,
         fontFamily: "Poppins_Bold",
+    },
+    fieldText: {
+        marginTop: 5,
+        color: "white",
+        width: "100%",
+        height: 60,
+        fontSize: 20,
+        fontFamily: "Poppins_Medium",
+    },
+    fieldWrapper: {
+
+        padding: ScreenWidth * 0.05,
+        justifyContent: "center",
+        width: ScreenWidth * 0.70,
+        height: 62,
+        borderTopRightRadius: 25,
+        borderTopLeftRadius: 25,
+        borderBottomRightRadius: 35,
+        borderBottomLeftRadius: 35,
+        backgroundColor: '#3FC3DD',
+        marginBottom: 30,
+        elevation: 5,
+
+
     },
 
 });

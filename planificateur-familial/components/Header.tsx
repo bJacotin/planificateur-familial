@@ -26,7 +26,7 @@ const Header = ({text} :Props ) => {
 
 const styles = StyleSheet.create({
     header: {
-        marginTop:25,
+        marginTop:0,
         width:'100%',
         height:70,
         display:"flex",
