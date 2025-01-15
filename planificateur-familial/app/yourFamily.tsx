@@ -14,7 +14,7 @@ import {
     Dimensions,
     SafeAreaView,
     StatusBar,
-    Platform
+    Platform, Modal
 } from 'react-native';
 import * as NavigationBar from 'expo-navigation-bar';
 import firebase from "firebase/compat";
@@ -55,7 +55,7 @@ const YourFamily = () => {
     const [owner,setOwner]= useState('');
     const [code,setCode]= useState('');
     const [joinRequests, setJoinRequests] = useState([]);
-
+    const [modalVisible, setModalVisible] = useState(false);
 
 
     const fetchProfilePicture = async (userId: string): Promise<string | null> => {
@@ -190,7 +190,9 @@ const YourFamily = () => {
     useEffect(() => {
         fetchFamilyMembers();
     }, []);
-
+    const toggleModal = () => {
+        setModalVisible(prevState => !prevState);
+    };
 
 
     return (
@@ -200,6 +202,7 @@ const YourFamily = () => {
             start={{x: 0.5, y: 0}}
             end={{x: 0.5, y: 1}}
             style={styles.mainContainer}>
+
             <Header text={""}></Header>
 
             <View style={styles.centerContainer}>
@@ -211,14 +214,13 @@ const YourFamily = () => {
                     <Image source={require('@/assets/images/edit-pen-icon.jpg')} style={styles.imgEdit}/>
                 </TouchableOpacity>
 
-                <Text style={styles.membersText}>12 membres</Text>
+                <Text style={styles.membersText}>{familyMembers.length + 1} membres</Text>
 
-                <Text style={styles.membersText}>{code}</Text>
             </View>
             <View style={styles.bottomContainer}>
-                <FamilyMember  name={owner.name} pp={owner.profilePicture} />
+                <FamilyMember  name={owner.name} pp={owner.profilePicture}/>
                 {familyMembers.map((member, index) => (
-                    <FamilyMember key={index} name={member.name} pp={member.profilePicture} />
+                    <FamilyMember key={index} name={member.name} pp={member.profilePicture}/>
                 ))}
                 <Text style={styles.membersText}>Accepter des membres :</Text>
 
@@ -231,8 +233,23 @@ const YourFamily = () => {
                         onReject={() => rejectRequest(request.uid)}
                     />
                 ))}
-
+                <TouchableOpacity onPress={toggleModal} style={styles.displayCodeWrapper}>
+                    <Image style={styles.displayCodeImg} source={require('@/assets/images/menu-points.png')}></Image>
+                    <Text style={styles.displayCodeText}>Partager le code</Text>
+                </TouchableOpacity>
+                <Modal visible={modalVisible} >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Code de votre famille</Text>
+                        <Text style={styles.modalCode}>{code}</Text>
+                        <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
+                            <Text style={styles.closeButtonText}>Fermer</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
             </View>
+
         </LinearGradient>
     );
 };
@@ -244,13 +261,11 @@ const styles = StyleSheet.create({
         height: ScreenHeight,
         width: ScreenWidth,
         marginTop: 28,
-
     },
     centerContainer: {
         width: ScreenWidth * 0.9,
         height: ScreenHeight * 0.2,
         backgroundColor: '#E7E7E7',
-
         alignSelf: 'center',
         marginTop: ScreenWidth * 0.24,
         borderRadius: 20,
@@ -271,8 +286,6 @@ const styles = StyleSheet.create({
         top:-18,
         position: 'relative',
         opacity: 0.6,
-
-
     },
     nameWrapper: {
         top:-16,
@@ -302,7 +315,65 @@ const styles = StyleSheet.create({
         top:-ScreenHeight*0.1,
         zIndex:0,
         paddingTop:ScreenHeight*0.1
-    }
+    },
+    displayCodeWrapper: {
+        position:"absolute",
+        zIndex:100,
+        bottom:20,
+        alignSelf:"center",
+        backgroundColor:'#4FE2FF',
+        height:50,
+        width:ScreenWidth*0.6,
+        flexDirection:"row",
+        borderRadius:30,
+        justifyContent:"center",
+        alignItems:"center"
+    },
+    displayCodeImg: {
+        width: 30,
+        height:30,
+        marginRight:10
+    },
+    displayCodeText: {
+        color:'white',
+        fontFamily:"Poppins_SemiBold"
+    },
+
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    },
+    modalContent: {
+        width: ScreenWidth * 0.8,
+        padding: 20,
+        borderRadius: 10,
+        backgroundColor: 'white',
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 15,
+    },
+    modalCode: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#4FE2FF',
+        marginVertical: 20,
+    },
+    closeButton: {
+        backgroundColor: '#4FE2FF',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+    },
+    closeButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 
 
 });
