@@ -1,13 +1,17 @@
 import React from 'react'
 import {StyleSheet, View, Text, Image} from "react-native";
 
+
+
 type Props = {
     title: string;
     isChecked: boolean;
     details: string;
+    date : string;
+    importance: string;
 };
 
-const Task = ({ title, isChecked, details }: Props) => {
+const Task = ({ title, isChecked, details, date,importance}: Props) => {
     return (
         <View style = {styles.taskContainer}>
             <View style = {styles.leftContainer}>
@@ -18,7 +22,13 @@ const Task = ({ title, isChecked, details }: Props) => {
                           style={styles.title}>{title}</Text>
                     <Text numberOfLines={1}
                           ellipsizeMode="tail"
+                          style={styles.details}>{date}</Text>
+                    <Text numberOfLines={1}
+                          ellipsizeMode="tail"
                           style={styles.details}>{details}</Text>
+                    <Text numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={[styles.details,{marginTop:0}]}>{importance}</Text>
                 </View>
                 <View
                     style={styles.checkButton}>
@@ -43,7 +53,7 @@ const styles = StyleSheet.create({
     },
     taskContainer: {
         backgroundColor: '#EBEBEB',
-        height: 60,
+        height: 100,
         width: '100%',
         flexDirection:"row",
         justifyContent: 'space-between',
@@ -75,21 +85,28 @@ const styles = StyleSheet.create({
         width:24,
         height:24,
         marginLeft:9,
-        marginRight:10,
-        backgroundColor:"red",
+        marginRight:20,
+        borderRadius: 5,
+        backgroundColor:"transparent",
+        borderStyle:"solid",
+        borderColor:"#3D3D3D",
+        borderWidth:3,
+        opacity:0.75,
     },
     title: {
-marginLeft:20,        fontFamily:"Poppins_SemiBold",
+        marginLeft:20,        
+        fontFamily:"Poppins_SemiBold",
         fontSize : 24,
         textAlign:"left",
+        maxWidth: '90%',
     },
     details: {
         marginLeft:20,
         fontFamily:"Poppins_Regular",
-        fontSize : 10,
+        fontSize : 14,
         textAlign:"left",
         color:"grey",
-
+        marginTop:-8,
         //backgroundColor:"green"
     },
     taskDataContainer: {
