@@ -14,17 +14,11 @@ const FamilyMember = ({name, pp}: Props) => {
 
             <Image
                 style={styles.pp}
-                source={
-                    pp === ''
-                        ? require('@/assets/images/emptyProfilePicture.png')
-                        : {uri: pp}
-                }
+                source={pp === '' ? require('@/assets/images/emptyProfilePicture.png') : {uri: pp}}
 
             />
             <View style={styles.taskDataContainer}>
                 <Text style={styles.name}>{name}</Text>
-
-
             </View>
 
 
@@ -48,10 +42,9 @@ const styles = StyleSheet.create({
             borderTopLeftRadius: 35,
             borderTopRightRadius: 25,
             flexDirection: "row",
-            alignSelf:"center",
-            alignItems:"center",
+            alignSelf: "center",
+            alignItems: "center",
             elevation: 5,
-
 
 
         },
@@ -62,7 +55,7 @@ const styles = StyleSheet.create({
             borderRadius: 30,
             marginLeft: 5,
             marginRight: 10,
-            backgroundColor:'red'
+            backgroundColor: 'red'
 
 
         },
@@ -73,12 +66,11 @@ const styles = StyleSheet.create({
 
         },
         name: {
-            marginTop:4,
+            marginTop: 4,
             fontFamily: "Poppins_SemiBold",
             fontSize: 18,
             textAlign: "left",
-            opacity:0.7
-
+            opacity: 0.7
 
 
         }

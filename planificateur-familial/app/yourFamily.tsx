@@ -20,7 +20,17 @@ import * as NavigationBar from 'expo-navigation-bar';
 import firebase from "firebase/compat";
 import firestore = firebase.firestore;
 import {sendEmailVerification, signOut} from "firebase/auth"
-import {addDoc, arrayUnion, collection, doc, getDoc, onSnapshot, setDoc} from "@firebase/firestore";
+import {
+    addDoc,
+    arrayRemove,
+    arrayUnion,
+    collection,
+    doc,
+    getDoc,
+    onSnapshot,
+    setDoc,
+    updateDoc
+} from "@firebase/firestore";
 import {async} from "@firebase/util";
 import RNFS from 'react-native-fs';
 
@@ -31,6 +41,7 @@ import auth = firebase.auth;
 import generate from "@babel/generator";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import FamilyMember from "@/components/familyMember";
+import JoinRequest from "@/components/JoinRequest";
 
 
 const ScreenWidth = Dimensions.get('window').width;
@@ -43,6 +54,8 @@ const YourFamily = () => {
     const [name, setName] = useState('');
     const [owner,setOwner]= useState('');
     const [code,setCode]= useState('');
+    const [joinRequests, setJoinRequests] = useState([]);
+
 
 
     const fetchProfilePicture = async (userId: string): Promise<string | null> => {
@@ -84,8 +97,10 @@ const YourFamily = () => {
                 return;
             }
 
+
             const userData = userSnap.data();
-            setOwner(userData)
+            const ownerProfilePicture = await fetchProfilePicture(auth.currentUser.uid);
+            setOwner({ ...userData, profilePicture: ownerProfilePicture });
             if (userData.families && userData.families.length > 0) {
                 const familyId = userData.families[0]; // ToDo ici on ne prend que la liste n°1
                 const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
@@ -110,7 +125,24 @@ const YourFamily = () => {
                         );
 
                         setFamilyMembers(membersData); // ToDO potentiel bug user delete
+                    }else { setFamilyMembers([])}
+                    if (familyData.joinRequests && familyData.joinRequests.length > 0) {
+                        const requestsData = await Promise.all(
+                            familyData.joinRequests.map(async (requestId: string) => {
+                                const requestRef = doc(FIREBASE_FIRESTORE, "users", requestId);
+                                const requestSnap = await getDoc(requestRef);
+                                if (requestSnap.exists()) {
+                                    const requestData = requestSnap.data();
+                                    const profilePicture = await fetchProfilePicture(requestId);
+                                    return { ...requestData, profilePicture, uid: requestId };
+                                }
+                                return null;
+                            })
+                        );
+
+                        setJoinRequests(requestsData);
                     }
+                    else { setJoinRequests([])}
                 }
             }
         } catch (error) {
@@ -118,9 +150,48 @@ const YourFamily = () => {
         }
     };
 
+    const acceptRequest = async (userId: string) => {
+
+        const userRef = doc(FIREBASE_FIRESTORE, "users", FIREBASE_AUTH.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+
+        const familyId = userSnap.data().families[0];
+        const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
+
+        console.log(userId)
+        await updateDoc(familyRef, {
+            members: arrayUnion(userId),
+            joinRequests: arrayRemove(userId),
+        });
+
+
+        fetchFamilyMembers();
+    };
+
+
+    const rejectRequest = async (userId: string) => {
+
+        const userRef = doc(FIREBASE_FIRESTORE, "users", FIREBASE_AUTH.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+
+        const familyId = userSnap.data().families[0];
+        const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
+
+
+        await updateDoc(familyRef, {
+            joinRequests: arrayRemove(userId),
+        });
+
+
+        fetchFamilyMembers();
+
+    };
+
     useEffect(() => {
         fetchFamilyMembers();
     }, []);
+
+
 
     return (
         <LinearGradient
@@ -145,10 +216,22 @@ const YourFamily = () => {
                 <Text style={styles.membersText}>{code}</Text>
             </View>
             <View style={styles.bottomContainer}>
-                <FamilyMember  name={owner.name} pp={''} />
+                <FamilyMember  name={owner.name} pp={owner.profilePicture} />
                 {familyMembers.map((member, index) => (
                     <FamilyMember key={index} name={member.name} pp={member.profilePicture} />
                 ))}
+                <Text style={styles.membersText}>Accepter des membres :</Text>
+
+                {joinRequests.map((request, index) => (
+                    <JoinRequest
+                        key={index}
+                        name={request.name}
+                        pp={request.profilePicture}
+                        onAccept={() => acceptRequest(request.uid)}
+                        onReject={() => rejectRequest(request.uid)}
+                    />
+                ))}
+
             </View>
         </LinearGradient>
     );

@@ -74,7 +74,7 @@ const JoinFamily = () => {
         }
 
     };
-    const sendJoinRequest = async (familyCode) => {
+    const sendJoinRequest = async (familyCode:string) => {
         const auth = FIREBASE_AUTH;
 
         if (!auth.currentUser) {
@@ -82,7 +82,7 @@ const JoinFamily = () => {
         }
 
         try {
-            // Trouver la famille correspondant au code
+
             const familiesCollectionRef = collection(FIREBASE_FIRESTORE, "families");
 
             const familiesQuery = query(familiesCollectionRef, where("code", "==", familyCode));
