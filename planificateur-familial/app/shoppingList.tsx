@@ -29,6 +29,8 @@ import { router } from 'expo-router';
     const [quantity, setQuantity] = useState<string>('');
     const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+    const docRef = doc(FIREBASE_FIRESTORE, 'shoppingLists', 'famille123');
   
     const [listId, setListId] = useState<string>('famille123'); // ID unique de la liste collaborative
   
@@ -37,9 +39,10 @@ import { router } from 'expo-router';
     }, []);
 
     useEffect(() => {
-        saveShoppingList();
-    }, [shoppingList]);
-
+        if (shoppingList.length > 0) {
+          saveShoppingList();
+        }
+      }, [shoppingList]);
   
     const loadShoppingList = () => {
       const listRef = doc(FIREBASE_FIRESTORE, 'shoppingLists', listId);
@@ -55,27 +58,34 @@ import { router } from 'expo-router';
     };
   
     const saveShoppingList = async () => {
-      const listRef = doc(FIREBASE_FIRESTORE, 'shoppingLists', listId);
-      try {
-        await updateDoc(listRef, {
-          items: shoppingList,
-        });
-      } catch (error) {
-        console.error('Erreur lors de la sauvegarde de la liste', error);
-      }
+        const listRef = doc(FIREBASE_FIRESTORE, 'shoppingLists', listId);
+      
+        try {
+          // Vérifie si le document existe
+          const docSnap = await getDoc(listRef);
+          if (docSnap.exists()) {
+            // Met à jour un document existant
+            await updateDoc(listRef, { items: shoppingList });
+          } else {
+            // Crée un nouveau document si nécessaire
+            await setDoc(listRef, { items: shoppingList });
+          }
+          console.log('Liste sauvegardée avec succès.');
+        } catch (error) {
+          console.error('Erreur lors de la sauvegarde de la liste', error);
+        }
     };
   
     const addItem = () => {
-      if (itemName.trim().length > 0 && quantity.trim().length > 0) {
-        const newItem = { name: itemName, quantity, isBought: false };
-        const updatedList = [...shoppingList, newItem];
-        setShoppingList(updatedList);
-        saveShoppingList(); // Sauvegarder immédiatement
-        setItemName('');
-        setQuantity('');
-        setModalVisible(false);
-      }
-    };
+        if (itemName.trim().length > 0 && quantity.trim().length > 0) {
+          const newItem = { name: itemName, quantity, isBought: false };
+          const updatedList = [...shoppingList, newItem];
+          setShoppingList(updatedList); // La sauvegarde sera déclenchée par useEffect
+          setItemName('');
+          setQuantity('');
+          setModalVisible(false);
+        }
+      };
   
     const toggleBoughtStatus = (index: number) => {
       const updatedList = [...shoppingList];
@@ -140,7 +150,7 @@ import { router } from 'expo-router';
             >
             <Text style={styles.headerTitle}>Ma Liste de Courses</Text>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                <Image source={require('../assets/images/arrowLeft.png')} style={{ width: 42, height: 60 }}/>
+                <Image source={require('../assets/images/arrowLeft.png')} style={{ width: 60, height: 60 }}/>
             </TouchableOpacity>
             <TouchableOpacity onPress={shareList} style={styles.shareButton}>
                 <Text style={styles.shareButtonText}>Partager</Text>
@@ -218,22 +228,22 @@ import { router } from 'expo-router';
   
   const styles = StyleSheet.create({
     header: {
-        padding: 30,
+        paddingTop: 30, 
+        paddingBottom: 30, 
         flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
     },
     headerTitle: {
         color: 'white',
         fontSize: 20,
-        marginRight: 40,
         fontWeight: 'bold',
+        textAlign: 'center', 
+        flex: 2,
+        marginRight: 50,
     },
     backButton: {
         position: 'absolute',
-        left: 5,
-        top: 5,
-        padding: 10,
         borderRadius: 5,
     },
     backButtonText: {
