@@ -138,13 +138,12 @@ export default function homeToDo() {
         const selectedFamily = allFamilies.find((family) => family.value === value);
         console.log("Famille sélectionnée :", selectedFamily);
 
-        // Vérifier si members est un tableau valide
         if (selectedFamily && Array.isArray(selectedFamily.members)) {
-            // Créer une promesse pour récupérer tous les membres
+
             const membersFormatted = await Promise.all(
                 selectedFamily.members.map(async (memberId) => {
 
-                    const memberDocRef = doc(FIREBASE_FIRESTORE, 'users', memberId); // user de merde a la con
+                    const memberDocRef = doc(FIREBASE_FIRESTORE, 'users', memberId);
                     const memberDocSnap = await getDoc(memberDocRef);
                     const memberData = memberDocSnap.exists() ? memberDocSnap.data() : null;
                     if (memberId === FIREBASE_AUTH.currentUser.uid) {
@@ -158,7 +157,7 @@ export default function homeToDo() {
             );
 
             console.log("Membres formatés :", membersFormatted);
-            setMembersInFamily(membersFormatted); // Met à jour les membres dans le dropdown
+            setMembersInFamily(membersFormatted);
         } else {
             console.log("Pas de membres ou structure incorrecte dans cette famille.");
         }
