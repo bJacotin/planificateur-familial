@@ -22,7 +22,7 @@ import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {LinearGradient} from "expo-linear-gradient";
 import {ProfilePicture} from '@/components/ProfilePicture';
 import {IconServices} from "@/components/IconServices";
-import {collection, doc, getDoc, getDocs, where} from "@firebase/firestore";
+import {addDoc, collection, doc, getDoc, getDocs, where} from "@firebase/firestore";
 import ListCategories from "@/components/ListCategories";
 import DropDownPicker from 'react-native-dropdown-picker';
 import {query} from "@firebase/database";
@@ -75,7 +75,7 @@ const fetchUserFamilies = async () => {
     }
 };
 export default function homeToDo() {
-
+    const [taskTitle, setTaskTitle] = useState("");
     const router = useRouter();
     const [modalVisible, setModalVisible] = useState<boolean>(false);
 
@@ -131,7 +131,26 @@ export default function homeToDo() {
         fetchFamilies();
     }, []);
 
+    const createToDoList = async (title, familyId, members) => {
+        try {
+            if (!title ) {
+                console.error("Le titre est obligatoires.");
+                return;
+            }
 
+            const toDoListRef = collection(FIREBASE_FIRESTORE, "todoLists");
+            await addDoc(toDoListRef, {
+                title,
+                familyId,
+                members,
+                createdBy: FIREBASE_AUTH.currentUser.uid,
+                createdAt: new Date(),
+            });
+            console.log("To-do list créée avec succès !");
+        } catch (error) {
+            console.error("Erreur lors de la création de la to-do list :", error);
+        }
+    };
     const handleFamilyChange = async (value) => {
         setSelectedFamily(value);
 
@@ -162,7 +181,11 @@ export default function homeToDo() {
             console.log("Pas de membres ou structure incorrecte dans cette famille.");
         }
     };
-
+    const handleSubmit = async () => {
+        await createToDoList(taskTitle, selectedFamily, selectedMembers);
+        setTaskTitle(""); // Réinitialiser le champ du titre
+        setModalVisible(false); // Fermer le modal
+    };
     return (
         <LinearGradient
             colors={['#4FE2FF', '#004B5A', '#002C35']}
@@ -212,7 +235,7 @@ export default function homeToDo() {
                             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                             style={styles.modalView}
                         >
-                            <TextInput placeholder="Titre" style={styles.titleInput} />
+                            <TextInput value={taskTitle} placeholder="Titre" style={styles.titleInput} onChangeText={setTaskTitle} />
 
                             <LinearGradient
                                 colors={['#4FE2FF', '#004B5A', '#002C35']}
@@ -250,6 +273,9 @@ export default function homeToDo() {
                                 style={styles.dropdown}
 
                             />
+                            <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+                                <Image style={styles.submitImg} source={require("@/assets/images/arrowLeft.png")}></Image>
+                            </TouchableOpacity>
 
 
                         </KeyboardAvoidingView>
@@ -431,6 +457,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-
+    submitButton: {
+        alignSelf:"flex-end",
+        marginRight:30,
+        marginVertical:10,
+        width:40,
+        height:40,
+        backgroundColor:"#4FE2FF",
+        borderRadius:12,
+        justifyContent:"center",
+        alignItems:"center"
+    },
+    submitImg: {
+        transform: [{rotate: '180deg'}],
+        marginLeft:4,
+        height:40,
+        width:40,
+    }
 
 });
