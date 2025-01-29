@@ -7,12 +7,14 @@ type Props = {
     categoriesNumber: number;
     color: string;
     route: string;
+    id:string
 };
 
-const homeToDo = ({ title, categoriesNumber, color, route }: Props) => {
+const homeToDo = ({ title, categoriesNumber, color, route ,id}: Props) => {
     const router = useRouter();
     const handlePress = () => {
-        router.push(route as RelativePathString);
+        router.push(route as RelativePathString );
+        console.log(id)
     };
 
     return (

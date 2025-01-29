@@ -218,7 +218,7 @@ const Profile = () => {
                 <View style={styles.centerContainer}>
                     <View>
                         <Text style={styles.nameText}>{name}</Text>
-                        <Text style={styles.ageText}>{age} ans</Text>
+
 
                     </View>
                 </View>
@@ -229,7 +229,7 @@ const Profile = () => {
                        style={[styles.imgThreePoints, {top: ScreenHeight * 0.028}]}/>
 
                 <TouchableOpacity style={styles.familyContainer}>
-                    <Text style={styles.familyText}>Boubakar</Text>
+                    <Text style={styles.familyText}></Text>
                 </TouchableOpacity>
                 <Text style={[styles.titleText, {marginTop: ScreenHeight * 0.035}]}>
                     Badges <Image source={require('@/assets/images/info.png')} style={[styles.imgInfo]}/>

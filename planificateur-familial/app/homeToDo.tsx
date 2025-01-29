@@ -183,9 +183,12 @@ export default function homeToDo() {
     };
     const handleSubmit = async () => {
         await createToDoList(taskTitle, selectedFamily, selectedMembers);
-        setTaskTitle(""); // Réinitialiser le champ du titre
-        setModalVisible(false); // Fermer le modal
+        setTaskTitle("");
+        setModalVisible(false);
+
     };
+
+
     return (
         <LinearGradient
             colors={['#4FE2FF', '#004B5A', '#002C35']}
@@ -210,14 +213,16 @@ export default function homeToDo() {
                 <Text style={styles.listText}>Listes</Text>
 
             </View>
-            <Text style={styles.categoriesText}>4 catégories</Text>
+            <Text style={styles.categoriesText}>catégories</Text>
 
 
             <ScrollView style={styles.content}>
-                <ListCategories title={"Aujourd'hui"} categoriesNumber={5} color={"red"} route={"/todo"}/>
-                <ListCategories title={"Cette semaine"} categoriesNumber={7} color={"blue"} route={""}/>
-                <ListCategories title={"Ce mois"} categoriesNumber={10} color={"green"} route={""}/>
-                <ListCategories title={"Toutes mes tâches"} categoriesNumber={31} color={"orange"} route={""}/>
+
+                    <ListCategories title="Aujourd'hui" categoriesNumber={5} color="red" route="/todo" id="idAujourd'hui" />
+                    <ListCategories title="Cette semaine" categoriesNumber={7} color="blue" route="/todo" id="idSemaine" />
+                    <ListCategories title="Ce mois" categoriesNumber={10} color="green" route="/todo" id="idMois" />
+                    <ListCategories title="Toutes mes tâches" categoriesNumber={31} color="orange" route="/todo" id="idToutes" />
+
 
                 <TouchableOpacity style={styles.newTaskButton} onPress={(): void => setModalVisible(true)}>
                     <Text style={styles.buttonLabel}>+</Text>

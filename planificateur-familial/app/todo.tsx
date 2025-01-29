@@ -19,7 +19,11 @@ import {useState, useEffect, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Task from '@/components/Task';
 import Header from "@/components/Header";
-import {router} from "expo-router";
+import {router, usePathname} from "expo-router";
+import {useSearchParams} from "expo-router/build/hooks";
+import {FIREBASE_FIRESTORE} from "@/FirebaseConfig";
+import {collection, doc, getDoc, getDocs, where} from "@firebase/firestore";
+import {query} from "@firebase/database";
 
 
 const ScreenWidth = Dimensions.get('window').width;
@@ -85,15 +89,69 @@ export default function Todo() {
         setDeleteModalVisible(false)
     };
 
-    const handleAddTask = () => {
-        if (task.trim().length > 0) {
-            Keyboard.dismiss();
-            setTaskItems([...taskItems, {title: task, isChecked: false, details: detail}]);
-            setTask("");
-            setDetail("");
-            setModalVisible(false)
+    const pathname = usePathname();
+
+    console.log(pathname)
+    const [todoList, setTodoList] = useState(null);
+    function getDateRangeFromId() {
+        const now = new Date();
+
+        switch ("") {
+            case "idAujourd'hui":
+                return {
+                    start: now,
+                    end: new Date(now.getTime() + 24 * 60 * 60 * 1000), // +1 jour
+                };
+            case "idSemaine":
+                return {
+                    start: now,
+                    end: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // +1 semaine
+                };
+            case "idMois":
+                return {
+                    start: now,
+                    end: new Date(now.setMonth(now.getMonth() + 1)), // +1 mois
+                };
+            default:
+                return { start: null, end: null };
         }
-    };
+    }
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        const fetchTasks = async () => {
+            const dateRange = getDateRangeFromId(8);
+
+            if (!dateRange.start || !dateRange.end) {
+                console.error("ID invalide, aucun filtre appliqué.");
+                return;
+            }
+
+            try {
+                const tasksRef = collection(FIREBASE_FIRESTORE, "tasks"); // Assurez-vous d'avoir une collection "tasks"
+                const tasksQuery = query(
+                    tasksRef,
+                    where("dueDate", ">=", dateRange.start), // Date d'échéance >= début
+                    where("dueDate", "<=", dateRange.end) // Date d'échéance <= fin
+                );
+
+                const querySnapshot = await getDocs(tasksQuery);
+                const fetchedTasks = querySnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+
+                setTasks(fetchedTasks);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des tâches :", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTasks();
+
+    }, [pathname]);
 
 
     // Charger les tâches au démarrage de l'application
