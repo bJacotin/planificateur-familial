@@ -145,10 +145,10 @@ import { router } from 'expo-router';
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <LinearGradient
-                colors={['#C153F8', '#E15D5A']}
+                colors={['#4FE2FF', '#004B5A', '#002C35']}
                 style={styles.header}
             >
-            <Text style={styles.headerTitle}>Ma Liste de Courses</Text>
+            <Text style={styles.headerTitle}>Liste de Courses</Text>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                 <Image source={require('../assets/images/arrowLeft.png')} style={{ width: 60, height: 60 }}/>
             </TouchableOpacity>
@@ -179,7 +179,7 @@ import { router } from 'expo-router';
                 </ScrollView>
                 <TouchableOpacity onPress={() => setModalVisible(true)}>
                     <LinearGradient
-                        colors={['#C153F8', '#E15D5A']}
+                        colors={['#4FE2FF', '#004B5A', '#002C35']}
                         style={styles.newItemButton}
                     >
                         <Text style={styles.buttonText}>Ajouter un Article</Text>
@@ -211,7 +211,7 @@ import { router } from 'expo-router';
                                 />
                                 <TouchableOpacity onPress={addItem}>
                                     <LinearGradient
-                                        colors={['#C153F8', '#E15D5A']}
+                                        colors={['#4FE2FF', '#004B5A', '#002C35']}
                                         style={styles.addItemButton}
                                     >
                                         <Text style={styles.addItemText}>Ajouter</Text>
