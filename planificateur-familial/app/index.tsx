@@ -28,7 +28,7 @@ const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 export default function Index() {
-    const [name, setName] = useState<string>("Jean-Michel")
+    const [name, setName] = useState<string>("")
     const router = useRouter();
 
     const handleProfileClick = () => {
@@ -67,6 +67,7 @@ export default function Index() {
 
     const [userPP, setUserPP] = useState<string>('');
     const fetchProfilePicture = async () => {
+        return''
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log('test')
         if (FIREBASE_AUTH.currentUser.uid) {
@@ -133,25 +134,27 @@ export default function Index() {
                         <Text style={styles.familyNameText}>Ma famille</Text>
                     </View>
                     <View style={styles.familyPictureContainer}>
-                        <ProfilePicture image={require('@/assets/images/pp.jpg')}/>
+                        <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
                     </View>
-
-
+                    <View style={[styles.familyPictureContainer,{zIndex:-2}]}>
+                        <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
+                    </View>
+                    <View style={[styles.familyPictureContainer,{zIndex:-3}]}>
+                        <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
+                    </View>
                 </View>
+
                 <Text style={styles.servicesText}>Vos services </Text>
                 <View style={styles.servicesIcons}>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List" route="/todo"/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List" route="/homeToDo"/>
                     <IconServices image={require('@/assets/images/agenda.png')} title="Agenda" route="/agenda"/>
-                    <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={"/family"}/>
-                    <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course" route={"/shoppingList"}/>
+
                 </View>
 
                 <View style={styles.servicesIcons}>
-                    <IconServices image={''} title="" route={"/"}/>
-                    <IconServices image={''} title="" route={"/"}/>
-                    <IconServices image={''} title="" route={"/"}/>
-                    <IconServices image={''} title="" route={"/"}/>
 
+                    <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={"/family"}/>
+                    <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course" route={"/shoppingList"}/>
 
                 </View>
 
@@ -250,9 +253,11 @@ const styles = StyleSheet.create({
         color: '#484848',
     },
     servicesIcons: {
+        width:ScreenWidth*0.8,
+        justifyContent:'space-between',
         alignSelf: 'center',
         flexDirection: 'row',
-        justifyContent: 'space-between',
+
     },
 
 

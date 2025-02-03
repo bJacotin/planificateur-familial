@@ -51,7 +51,7 @@ const ForgotPassword = () => {
 
       <View style={styles.imgBulle}>
         <Image source={require('@/assets/images/Rectangle526.png')} style={{zIndex:5  }} />
-        <Text style={[styles.textBulle, {zIndex:8 }]}>La honte ! T'as oublié ton mot de passe !</Text>
+        <Text style={[styles.textBulle, {zIndex:8 }]}>T'as oublié ton mot de passe ? Pas d'inquiétude</Text>
       </View>
 
       

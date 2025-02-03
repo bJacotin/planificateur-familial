@@ -119,6 +119,7 @@ const Login = () => {
               placeholder="Mot de passe"
               placeholderTextColor="rgba(255, 255, 255, 0.5)"
               style={styles.fieldText}
+              autoCapitalize={"none"}
               value={password}
               secureTextEntry={true}
               onChangeText={(text) => setPassword(text)}
