@@ -235,7 +235,6 @@ export default function Todo() {
                         <Image source={require("@/assets/images/arrowLeft.png")}/>
                     </LinearGradient>
                 </TouchableOpacity>
-
             </View>
 
             <View style={styles.container}>

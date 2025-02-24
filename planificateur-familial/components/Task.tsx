@@ -32,9 +32,6 @@ const Task = ({ title, isChecked, details, date,importance}: Props) => {
                 </View>
                 <View
                     style={styles.checkButton}>
-
-
-
                 </View>
             </View>
 
