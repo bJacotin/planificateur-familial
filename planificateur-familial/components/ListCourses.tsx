@@ -1,16 +1,16 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Image } from "react-native";
 import { RelativePathString, useRouter } from 'expo-router';
+
 
 type Props = {
     title: string;
-    categoriesNumber: number;
-    color: string;
     route: string;
     id:string
+    itemsCount?: number;
 };
 
-const homeToDo = ({ title, categoriesNumber, color, route ,id}: Props) => {
+const homeShoppingList = ({ title, route, id , itemsCount = 0}: Props) => {
     const router = useRouter();
     const handlePress = () => {
         router.push(route as RelativePathString );
@@ -18,29 +18,27 @@ const homeToDo = ({ title, categoriesNumber, color, route ,id}: Props) => {
     };
 
     return (
-        <TouchableOpacity style={styles.taskContainer} onPress={handlePress}>
+        <TouchableOpacity style={styles.shopppingContainer} onPress={handlePress}>
             <View style={styles.rowContainer}>
                 <View style={styles.leftContainer}>
                     <View style={styles.taskDataContainer}>
                         <Text numberOfLines={1} style={styles.title}>{title}</Text>
-                        <Text numberOfLines={1} style={styles.details}>{categoriesNumber}</Text>
+                        <Text numberOfLines={1} style={styles.details}>{itemsCount} éléments</Text>
                     </View>
                 </View>
-                <View
-                    style={[styles.checkButton, { backgroundColor: color }]}
-                >
-                </View>
+                <Image source={require('@/assets/images/arrowLeft.png')} style={{width: 50, height: 50}}/>
             </View>
         </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
-    taskContainer: {
-        backgroundColor: '#FFFFFF',
+    shopppingContainer: {
+        backgroundColor: '#3FC3DD',
+        opacity: 1.0,
         width: '100%',
         alignSelf: 'center',
-        height: 80,
+        height: 60,
         borderRadius: 20,
         elevation: 5,
         paddingHorizontal: 16,
@@ -63,16 +61,18 @@ const styles = StyleSheet.create({
     },
     title: {
         fontFamily: "Poppins_Bold",
-        fontSize: 24,
-        color: "#3D3D3D",
+        fontSize: 20,
+        color: "white",
         textAlign: "left",
         top: 10,
     },
     details: {
         fontFamily: "Poppins_Regular",
-        fontSize: 16,
-        color: "#3D3D3D",
-        opacity: 0.5,
+        fontSize: 12,
+        paddingLeft: 5,
+        width: 100,
+        color: "#3FC3DD",
+        backgroundColor: "white",
     },
     taskDataContainer: {
         justifyContent: "center",
@@ -80,4 +80,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default homeToDo;
+export default homeShoppingList;
