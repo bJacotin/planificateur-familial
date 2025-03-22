@@ -23,6 +23,7 @@ import {LinearGradient} from "expo-linear-gradient";
 import {ProfilePicture} from '@/components/ProfilePicture';
 import {IconServices} from "@/components/IconServices";
 import {doc, getDoc} from "@firebase/firestore";
+import Weather from "./Weather";
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
@@ -152,11 +153,10 @@ export default function Index() {
                 </View>
 
                 <View style={styles.servicesIcons}>
-
                     <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={"/family"}/>
                     <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course" route={"/shoppingList"}/>
-
                 </View>
+                <Weather />
 
             </View> 
         </LinearGradient>
