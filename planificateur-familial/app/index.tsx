@@ -154,7 +154,7 @@ export default function Index() {
                 <View style={styles.servicesIcons}>
 
                     <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={"/family"}/>
-                    <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course" route={"/homeShoppingList"}/>
+                    <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course" route={"/ShoppingList/shoppingListHome"}/>
 
                 </View>
 
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
         marginTop: 6,
         fontSize: 30,
         fontFamily: "Poppins_SemiBold",
-        color: '# 484848'
+        color: '#484848'
     },
 
 

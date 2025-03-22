@@ -206,7 +206,8 @@ const Profile = () => {
 
                 <LinearGradient
                     colors={['#4FE2FF', '#004B5A', '#002C35']}
-                    locations={[0, 0.8, 1]}                    start={{x: 0.5, y: 0}}
+                    locations={[0, 0.8, 1]}
+                    start={{x: 0.5, y: 0}}
                     end={{x: 0.5, y: 1}}
                     style={{height: ScreenHeight * 0.36}}
                 >

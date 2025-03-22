@@ -237,7 +237,6 @@ export default function Todo() {
                 </TouchableOpacity>
 
             </View>
-
             <View style={styles.container}>
                 <View style={styles.titleContainer}>
                     <Image source={require('@/assets/images/arrow.png')} style={{width: 50, height: 50, opacity: 0.5}}/>
@@ -490,7 +489,6 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins_Medium",
         fontSize: 12,
         textAlign: "center"
-
     },
     sectionNameContainer: {
         height: 55,
@@ -505,7 +503,6 @@ const styles = StyleSheet.create({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-
     },
     addTaskButton: {
         height: 50,
@@ -517,7 +514,6 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 35,
         borderWidth: 2,
         borderBottomWidth: 5,
-
     },
     addTaskButtonText: {
         marginTop: 3,
