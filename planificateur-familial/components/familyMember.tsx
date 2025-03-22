@@ -15,7 +15,6 @@ const FamilyMember = ({name, pp}: Props) => {
             <Image
                 style={styles.pp}
                 source={pp === '' ? require('@/assets/images/emptyProfilePicture.png') : {uri: pp}}
-
             />
             <View style={styles.taskDataContainer}>
                 <Text style={styles.name}>{name}</Text>
