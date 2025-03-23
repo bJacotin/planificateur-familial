@@ -9,6 +9,7 @@ import {
     Text,
     Touchable,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     View
 } from "react-native";
 
@@ -129,20 +130,22 @@ export default function Index() {
 
             <View style={styles.content}>
                 <Text style={styles.hello}>Bonjour, {name} !</Text>
-                <View style={styles.familyContainer}>
-                    <View style={styles.familyNameContainer}>
-                        <Text style={styles.familyNameText}>Ma famille</Text>
+                <TouchableWithoutFeedback onPress={() => router.push('/family' as RelativePathString)}>
+                    <View style={styles.familyContainer}>
+                        <View style={styles.familyNameContainer}>
+                            <Text style={styles.familyNameText}>Ma famille</Text>
+                        </View>
+                        <View style={styles.familyPictureContainer}>
+                            <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
+                        </View>
+                        <View style={[styles.familyPictureContainer,{zIndex:-2}]}>
+                            <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
+                        </View>
+                        <View style={[styles.familyPictureContainer,{zIndex:-3}]}>
+                            <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
+                        </View>
                     </View>
-                    <View style={styles.familyPictureContainer}>
-                        <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
-                    </View>
-                    <View style={[styles.familyPictureContainer,{zIndex:-2}]}>
-                        <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
-                    </View>
-                    <View style={[styles.familyPictureContainer,{zIndex:-3}]}>
-                        <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
-                    </View>
-                </View>
+                </TouchableWithoutFeedback>
 
                 <Text style={styles.servicesText}>Vos services </Text>
                 <View style={styles.servicesIcons}>

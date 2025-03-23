@@ -41,6 +41,7 @@ import auth = firebase.auth;
 import generate from "@babel/generator";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import { FamilyMember, FamilyMemberEdit } from '@/components/familyMember';
+
 import JoinRequest from "@/components/JoinRequest";
 
 
@@ -56,8 +57,41 @@ const YourFamily = () => {
     const [code,setCode]= useState('');
     const [joinRequests, setJoinRequests] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
+    const [familyName, setFamilyName] = useState('');
 
-
+    const updateFamilyName = async (newName) => {
+        const auth = FIREBASE_AUTH;
+    
+        if (!auth.currentUser) {
+            console.error("L'utilisateur n'est pas connecté.");
+            return;
+        }
+    
+        try {
+            const userRef = doc(FIREBASE_FIRESTORE, "users", auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+    
+            if (!userSnap.exists()) {
+                console.error("Le document utilisateur n'existe pas.");
+                return;
+            }
+    
+            const familyId = userSnap.data().families[0];
+            const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
+    
+            await updateDoc(familyRef, {
+                name: newName,
+            });
+    
+            setName(newName);
+            setFamilyName('');
+            toggleModal();
+    
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du nom de la famille :", error);
+        }
+    };
+    
     const fetchProfilePicture = async (userId: string): Promise<string | null> => {
         try {
             const docRef = doc(FIREBASE_FIRESTORE, "users", userId);
@@ -80,117 +114,105 @@ const YourFamily = () => {
             return null;
         }
     };
-
-
     const fetchFamilyMembers = async () => {
         const auth = FIREBASE_AUTH;
-
+    
         if (!auth.currentUser) {
             console.error("L'utilisateur n'est pas connecté.");
             return;
         }
-
+    
         try {
             const userRef = doc(FIREBASE_FIRESTORE, "users", auth.currentUser.uid);
             const userSnap = await getDoc(userRef);
-
+    
             if (!userSnap.exists()) {
                 console.error("Le document utilisateur n'existe pas.");
                 return;
             }
-
-
+    
             const userData = userSnap.data();
             const ownerProfilePicture = await fetchProfilePicture(auth.currentUser.uid);
             setOwner({ ...userData, profilePicture: ownerProfilePicture });
+    
             if (userData.families && userData.families.length > 0) {
-                const familyId = userData.families[0]; // ToDo ici on ne prend que la liste n°1
+                const familyId = userData.families[0];
                 const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
                 const familySnap = await getDoc(familyRef);
-
+    
                 if (familySnap.exists()) {
                     const familyData = familySnap.data();
-                    setName(familyData.name)
-                    setCode(familyData.code)
+                    setName(familyData.name);
+                    setCode(familyData.code);
+    
                     if (familyData.members && familyData.members.length > 0) {
                         const membersData = await Promise.all(
-                            familyData.members.map(async (memberId: string) => {
+                            familyData.members.map(async (memberId) => {
                                 const memberRef = doc(FIREBASE_FIRESTORE, "users", memberId);
                                 const memberSnap = await getDoc(memberRef);
                                 if (memberSnap.exists()) {
                                     const memberData = memberSnap.data();
                                     const profilePicture = await fetchProfilePicture(memberId);
-                                    return { ...memberData, profilePicture };
+                                    return { ...memberData, profilePicture, uid: memberId }; // Inclure uid ici
                                 }
                                 return null;
                             })
                         );
-
-                        setFamilyMembers(membersData); // ToDO potentiel bug user delete
-                    }else { setFamilyMembers([])}
-                    if (familyData.joinRequests && familyData.joinRequests.length > 0) {
-                        const requestsData = await Promise.all(
-                            familyData.joinRequests.map(async (requestId: string) => {
-                                const requestRef = doc(FIREBASE_FIRESTORE, "users", requestId);
-                                const requestSnap = await getDoc(requestRef);
-                                if (requestSnap.exists()) {
-                                    const requestData = requestSnap.data();
-                                    const profilePicture = await fetchProfilePicture(requestId);
-                                    return { ...requestData, profilePicture, uid: requestId };
-                                }
-                                return null;
-                            })
-                        );
-
-                        setJoinRequests(requestsData);
+    
+                        setFamilyMembers(membersData);
+                    } else {
+                        setFamilyMembers([]);
                     }
-                    else { setJoinRequests([])}
                 }
             }
         } catch (error) {
             console.error("Erreur lors de la récupération des membres :", error);
         }
     };
-
-    const acceptRequest = async (userId: string) => {
-
-        const userRef = doc(FIREBASE_FIRESTORE, "users", FIREBASE_AUTH.currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        const familyId = userSnap.data().families[0];
-        const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
-
-        console.log(userId)
-        await updateDoc(familyRef, {
-            members: arrayUnion(userId),
-            joinRequests: arrayRemove(userId),
-        });
-        const memberRef = doc(FIREBASE_FIRESTORE, "users", userId);
-        await updateDoc(memberRef, {
-            families: arrayUnion(familyId),
-        });
-
-        fetchFamilyMembers();
+    
+    const removeMember = async (userId:String) => {
+        const auth = FIREBASE_AUTH;
+    
+        if (!auth.currentUser) {
+            console.error("L'utilisateur n'est pas connecté.");
+            return;
+        }
+    
+        try {
+            const userRef = doc(FIREBASE_FIRESTORE, "users", auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+    
+            if (!userSnap.exists()) {
+                console.error("Le document utilisateur n'existe pas.");
+                return;
+            }
+    
+            const familyId = userSnap.data().families[0];
+            console.log("Family ID:", familyId); 
+            console.log("User ID:", userId); 
+    
+            if (!familyId || !userId) {
+                console.error("Family ID ou User ID est undefined.");
+                return;
+            }
+    
+            const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
+    
+            await updateDoc(familyRef, {
+                members: arrayRemove(userId),
+            });
+    
+            const memberRef = doc(FIREBASE_FIRESTORE, "users", userId);
+            await updateDoc(memberRef, {
+                families: arrayRemove(familyId),
+            });
+    
+            fetchFamilyMembers();
+        } catch (error) {
+            console.error("Erreur lors de la suppression du membre :", error);
+        }
     };
-
-
-    const rejectRequest = async (userId: string) => {
-
-        const userRef = doc(FIREBASE_FIRESTORE, "users", FIREBASE_AUTH.currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        const familyId = userSnap.data().families[0];
-        const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
-
-
-        await updateDoc(familyRef, {
-            joinRequests: arrayRemove(userId),
-        });
-
-
-        fetchFamilyMembers();
-
-    };
+    
 
     
 
@@ -229,46 +251,53 @@ const YourFamily = () => {
             <View style={styles.centerContainer}>
 
                 <View style={styles.nameWrapper}>
-                    <Text style={styles.familyNameText}>{name}</Text>
-                </View>
-                <TouchableOpacity  onPress={() => router.push('/editFamily')} style={styles.imgWrapEdit} >
+                    <Text style={styles.familyNameText}>{name} 
+                   
+                    </Text> 
+                    <TouchableOpacity onPress={toggleModal} style={styles.imgWrapEdit} >
                     <Image source={require('@/assets/images/edit-pen-icon.jpg')} style={styles.imgEdit}/>
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                    <Modal visible={modalVisible} transparent={true} animationType="fade">
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Inserer le nouveau nom de votre famille</Text>
+                            <View style={styles.modalCode}>
+                                <TextInput
+                                    style={{fontSize: 24, textAlign: 'center'}}
+                                    placeholder="Nouveau nom"
+                                    value={familyName}
+                                    placeholderTextColor="rgba(0, 0, 0, 0.5)"
+                                    onChangeText={(text) => setFamilyName(text)}
+                                    />
+                            </View>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                            <TouchableOpacity style={styles.closeButton} onPress={() => updateFamilyName(familyName)}>
+                                <Text style={styles.closeButtonText}>Valider</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.closeButton, {backgroundColor: "grey"}]} onPress={toggleModal}>
+                                <Text style={styles.closeButtonText}>Annuler</Text>
+                            </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+
+                    </Modal>
+                </View>
+
 
                 <Text style={styles.membersText}>{familyMembers.length + 1} membres</Text>
 
             </View>
             <View style={styles.bottomContainer}>
-                <FamilyMember  name={owner.name} pp={owner.profilePicture}/>
-                {familyMembers.map((member, index) => (
-                    <FamilyMember key={index} name={member.name} pp={member.profilePicture}/>
-                ))}
-                <Text style={styles.membersText}>Accepter des membres :</Text>
-
-                {joinRequests.map((request, index) => (
-                    <JoinRequest
-                        key={index}
-                        name={request.name}
-                        pp={request.profilePicture}
-                        onAccept={() => acceptRequest(request.uid)}
-                        onReject={() => rejectRequest(request.uid)}
-                    />
-                ))}
-                <TouchableOpacity onPress={toggleModal} style={styles.displayCodeWrapper}>
-                    <Image style={styles.displayCodeImg} source={require('@/assets/images/menu-points.png')}></Image>
-                    <Text style={styles.displayCodeText}>Partager le code</Text>
-                </TouchableOpacity>
-                <Modal visible={modalVisible} transparent={true} animationType="fade">
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Code de votre famille</Text>
-                        <Text style={styles.modalCode}>{code}</Text>
-                        <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
-                            <Text style={styles.closeButtonText}>Fermer</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+            {familyMembers.map((member, index) => (
+                <FamilyMemberEdit
+        key={index}
+        name={member.name}
+        pp={member.profilePicture}
+        uid={member.uid} 
+        onRemove={() => removeMember(member.uid)}
+    />                ))}
+                
             </View>
 
         </LinearGradient>
@@ -306,16 +335,16 @@ const styles = StyleSheet.create({
         zIndex: 7,
       },
     imgEdit: {
-        width: ScreenWidth * 0.05,
-        height: ScreenWidth * 0.05,
+        width: ScreenWidth * 0.04,
+        height: ScreenWidth * 0.04,
+        
+
     },
     imgWrapEdit: {
-        width: ScreenWidth * 0.05,
-        height: ScreenWidth * 0.05,
-        alignSelf:"flex-end",
-        right:12,
-        top:-18,
-        position: 'relative',
+        marginLeft: 'auto',
+        marginRight: 7.5,
+        justifyContent:"center",
+        alignItems:"center",    
         opacity: 0.6,
     },
     nameWrapper: {
@@ -325,6 +354,9 @@ const styles = StyleSheet.create({
         height: ScreenWidth * 0.08,
         backgroundColor:'#E7E7E7',
         justifyContent:"center",
+        alignItems:"center",
+        alignSelf:"center",
+        flexDirection:"row",
         borderRadius:6
 
     },
@@ -335,7 +367,10 @@ const styles = StyleSheet.create({
         marginTop:10
     },
     familyNameText: {
+        marginLeft:'auto',
+        paddingLeft:ScreenWidth*0.05,
         textAlign:"center",
+        alignSelf:"center",
         fontFamily:"Poppins_Bold",
         opacity:0.7
     },
@@ -387,6 +422,8 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 15,
+        textAlign: 'center',
+        fontFamily:"Poppins_Bold"
     },
     modalCode: {
         fontSize: 28,
@@ -398,6 +435,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#4FE2FF',
         paddingVertical: 10,
         paddingHorizontal: 20,
+        marginRight: 10,
+        marginLeft: 10,
         borderRadius: 20,
     },
     closeButtonText: {

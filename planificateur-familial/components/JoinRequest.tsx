@@ -17,12 +17,14 @@ const JoinRequest = ({name, pp, onAccept, onReject}: JoinRequestProps) => {
             />
             <Text style={styles.name}>{name}</Text>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={[styles.button, {backgroundColor: 'green'}]} onPress={onAccept}>
-                    <Text style={styles.buttonText}>Accepter</Text>
+                               <TouchableOpacity style={[styles.button]} onPress={onAccept}>
+                    <Image source={require('@/assets/images/check.png')}style={styles.iconCheck}  />
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.button, {backgroundColor: 'red'}]} onPress={onReject}>
-                    <Text style={styles.buttonText}>Refuser</Text>
+                <TouchableOpacity style={[styles.button]} onPress={onReject}>
+                                      <Image source={require('@/assets/images/cross.png')}  style={styles.iconCross}/>
                 </TouchableOpacity>
+
+
 
             </View>
         </View>
@@ -35,15 +37,21 @@ const ScreenHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
         buttonContainer: {
             flexDirection: 'row',
-            marginLeft: 'auto', // Pousse les boutons à droite
+            marginLeft: 'auto', 
             marginRight: 10,
         },
         button: {
+            height: 50,
+            width: 50,
+            borderRadius: 30,
+            backgroundColor: '#CFCFCF',
             marginLeft: 10,
             paddingVertical: 6,
             paddingHorizontal: 12,
-            borderRadius: 5,
-        },
+            justifyContent: 'center',
+            alignItems: 'center',
+            elevation: 5,
+            opacity: 1,},
         buttonText: {
             color: 'white',
             fontFamily: 'Poppins_Bold',
@@ -57,13 +65,26 @@ const styles = StyleSheet.create({
             borderBottomRightRadius: 35,
             borderBottomLeftRadius: 35,
             borderTopLeftRadius: 35,
-            borderTopRightRadius: 25,
+            borderTopRightRadius: 35,
             flexDirection: "row",
             alignSelf: "center",
             alignItems: "center",
             elevation: 5,
 
 
+        },
+        iconCross: {
+            width: 25,
+            height: 25,
+            opacity: 0.7,
+            
+        },
+        iconCheck: {
+            marginTop: 3,
+            width: 34,
+            height: 25,
+            tintColor: '#1B90A7',
+            
         },
         pp: {
 
@@ -72,7 +93,6 @@ const styles = StyleSheet.create({
             borderRadius: 30,
             marginLeft: 5,
             marginRight: 10,
-            backgroundColor: 'red'
 
 
         },

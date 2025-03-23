@@ -120,13 +120,35 @@ const CreateFamily = () => {
         router.push('/yourFamily' as RelativePathString);
     };
     return (
+        <SafeAreaView style={{ flex: 1 }}>
+
+
         <LinearGradient
             colors={['#4FE2FF', '#004B5A', '#002C35']}
             locations={[0, 0.8, 1]}
             start={{x: 0.5, y: 0}}
             end={{x: 0.5, y: 1}}
             style={styles.mainContainer}>
-            <Header text={""}></Header>
+   
+                     <Image source={require('@/assets/images/soleil.png')}  style={styles.imgSun} />
+                     <Image source={require('@/assets/images/nuages1.png')}  style={styles.imgNuage1} />
+                     <Image source={require('@/assets/images/nuages2.png')}  style={styles.imgNuage2} />
+                     <Image source={require('@/assets/images/Group20.png')}  style={styles.imgTukki} />
+                     <Image source={require('@/assets/images/plage.png')}  style={styles.imgPlage} />
+                           <View style={styles.imgBulle}>
+                             <Image source={require('@/assets/images/Rectangle526.png')} style={{zIndex:5  }} />
+                             <Text style={[styles.textBulle, {zIndex:8 }]}>Vous allez maintenant créer votre famille.</Text>
+                           </View>
+                               <TouchableOpacity onPress={() => router.push('/family')} style={[{ zIndex: 7 }, { position: 'absolute' }]}>
+                                   <LinearGradient
+                                       colors={['#4FE2FF', '#4FE2FF']}
+                                       style={styles.buttonWrap}
+                                       start={{ x: 1, y: -0.2 }}
+                                       end={{ x: 0, y: 1 }}
+                                   >
+                                       <Image source={require("@/assets/images/arrowLeft.png")} />
+                                   </LinearGradient>
+                               </TouchableOpacity>
             <View style={styles.content}>
                 <View style={styles.buttonWrapper}>
                     <View style={[styles.fieldWrapper]}>
@@ -147,6 +169,7 @@ const CreateFamily = () => {
 
             </View>
         </LinearGradient>
+        </SafeAreaView>
     );
 };
 
@@ -154,20 +177,23 @@ export default CreateFamily;
 
 const styles = StyleSheet.create({
     mainContainer: {
-        marginTop: 25,
+        marginTop: 0,
         width: '100%',
-        height: '100%'
+        height: '100%',
     },
     content: {
-        height: ScreenHeight * 0.85,
+        height: ScreenHeight * 1.2,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        
+        
     },
 
     button: {
         alignItems: "center",
         justifyContent: "center",
         width: ScreenWidth * 0.60,
+
 
 
         height: 46,
@@ -181,6 +207,16 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: "Poppins_Bold",
     },
+
+    buttonWrap: {
+        height: 60,
+        width: 80,
+        borderTopRightRadius: 20,
+        borderBottomRightRadius: 20,
+        elevation: 4,
+        marginTop: ScreenHeight * 0.10,
+        zIndex: 7,
+      },
     fieldText: {
         marginTop: 5,
         color: "white",
@@ -200,20 +236,79 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 35,
         borderBottomLeftRadius: 35,
         backgroundColor: '#3FC3DD',
-        marginBottom: 30,
+        marginBottom: 20,
         elevation: 5,
 
 
     },
     buttonWrapper: {
+
         width: ScreenWidth * 0.75,
-        height: ScreenHeight * 0.4,
-        backgroundColor: 'white',
-        elevation: 5,
+        height: ScreenHeight * 0.5,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 35
-    }
-
+        borderRadius: 35,
+    },
+    imgSun: {
+        position: 'absolute',
+        top: ScreenHeight * 0.13,
+        right: ScreenWidth * 0.05,
+        width: ScreenWidth * 0.32,
+        height: ScreenWidth * 0.32,
+        zIndex: 3,
+    
+      },
+      imgNuage1: {
+        position: 'absolute',
+        top: ScreenHeight * 0.18,
+        left: ScreenWidth * 0.040,
+        width: ScreenWidth * 0.4,
+        height: ScreenWidth * 0.25,
+        zIndex: 4,
+      },
+      imgNuage2: {
+        position: 'absolute',
+        top: ScreenHeight * 0.31,
+        right: ScreenWidth * 0.15,
+        width: ScreenWidth * 0.32,
+        height: ScreenWidth * 0.2,
+        zIndex: 6,
+      },
+      imgBulle: {
+        position: 'absolute',
+        top: ScreenHeight * 0.2,
+        right: ScreenWidth * 0.1,
+        width: ScreenWidth * 0.6,
+        height: ScreenWidth * 0.24,
+        opacity: 0.9,
+        zIndex: 5,
+      },
+      imgTukki: {
+        position: 'absolute',
+        top: ScreenHeight * 0.34,
+        left: ScreenWidth * 0.17,
+        width: ScreenWidth * 0.3,
+        height: ScreenWidth * 0.25,
+        zIndex: 2,
+      },
+      imgPlage: {
+        position: 'absolute',
+        bottom: 0,
+        right: ScreenWidth * -0.15,
+        width: ScreenWidth*1.3,
+        height: ScreenWidth * 0.7,
+        zIndex: 1,
+      },
+      textBulle: {
+        position: 'absolute',
+        top: ScreenWidth * 0.028,
+        left: ScreenWidth * 0.05,
+        color: '#42484F',
+        fontFamily: 'Poppins_Bold',
+        
+        fontSize: 20,
+        width: ScreenWidth * 0.6,
+        height: ScreenWidth * 0.24,
+      }
 
 });
