@@ -1,5 +1,5 @@
 import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
-import {addDoc, collection, getDocs, query, serverTimestamp, where} from "firebase/firestore";
+import {addDoc, collection, deleteDoc, getDocs, query, serverTimestamp, where} from "firebase/firestore";
 import {useEffect, useState} from "react";
 import {arrayUnion, doc, getDoc, onSnapshot, updateDoc} from "@firebase/firestore";
 
@@ -140,4 +140,17 @@ const createShoppingListItem = async (listId: string, item: ShoppingListItem) =>
         return false;
     }
 };
-export { createShoppingList, getUserShoppingLists , useShoppingLists, useShoppingListById, createShoppingListItem};
+const deleteList = async (listId: string) => {
+    try {
+        if (!listId) {
+            console.error("ID de la liste non valide.");
+            return;
+        }
+
+        await deleteDoc(doc(FIREBASE_FIRESTORE, "shoppingLists", listId));
+        console.log("Liste supprimée avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de la suppression de la liste :", error);
+    }
+};
+export { createShoppingList, getUserShoppingLists , useShoppingLists, useShoppingListById, createShoppingListItem, deleteList};
