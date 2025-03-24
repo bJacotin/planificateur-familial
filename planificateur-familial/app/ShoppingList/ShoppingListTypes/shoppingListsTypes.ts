@@ -1,4 +1,5 @@
 export interface ShoppingListItem {
+    id:string
     name: string;
     quantity: number;
     checked: boolean;
@@ -12,3 +13,4 @@ export interface ShoppingList {
     createdAt: any;
     items: ShoppingListItem[];
 }
+
