@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useState} from 'react';
+import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {
     Modal,
     View,
@@ -12,14 +13,40 @@ import {
     Platform, StyleSheet, Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import {createShoppingList} from "@/app/ShoppingList/shoppingListController";
 const ScreenWidth = Dimensions.get('window').width;
+
 interface AddTaskModalProps {
     modalVisible: boolean;
     setModalVisible: (visible: boolean) => void;
-
 }
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisible }) => {
+    const [listName, setListName] = useState("");
+
+    const handleCreateList = async () => {
+        if (!listName.trim()) {
+            console.error("Le titre de la liste ne peut pas être vide.");
+            return;
+        }
+
+        try {
+            const userId = FIREBASE_AUTH.currentUser?.uid;
+            if (!userId) {
+                console.error("Utilisateur non connecté.");
+                return;
+            }
+
+            const listId = await createShoppingList(listName, [userId]);
+            if (listId) {
+                console.log("Liste créée avec succès !");
+                setListName("");
+                setModalVisible(false);
+            }
+        } catch (error) {
+            console.error("Erreur lors de la création de la liste :", error);
+        }
+    };
     return (
         <Modal
             statusBarTranslucent={true}
@@ -34,8 +61,10 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         style={styles.modalView}
                     >
-                        <TextInput placeholder="Titre de la liste" style={styles.titleInput} />
-
+                        <TextInput placeholder="Titre de la liste"
+                                   style={styles.titleInput}
+                                   value={listName}
+                                   onChangeText={setListName}/>
                         <LinearGradient
                             colors={['#4FE2FF', '#004B5A', '#002C35']}
                             locations={[0, 0.8, 1]}
@@ -48,7 +77,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                                 <Image style={styles.iconScrollList} source={require("@/assets/images/familyIcon.png")} />
                                 <Text style={styles.textScrollList}>Membres</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.confirmContainer}>
+                            <TouchableOpacity style={styles.confirmContainer} onPress={() => handleCreateList()}>
                                 <Text style={styles.confirmText}>Valider</Text>
                             </TouchableOpacity>
                         </View>
@@ -60,9 +89,6 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
 };
 
 const styles = StyleSheet.create({
-
-
-
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -101,7 +127,6 @@ const styles = StyleSheet.create({
         borderRadius:15,
         borderWidth:4,
         flexDirection:"row",
-
     },
     textScrollList: {
         color:'#004B5A',
@@ -120,7 +145,6 @@ const styles = StyleSheet.create({
         borderRadius:15,
         borderWidth:4,
         flexDirection:"row",
-
     },
     confirmText: {
         color:'#ffffff',
@@ -135,8 +159,5 @@ const styles = StyleSheet.create({
         paddingVertical:15,
         justifyContent:"space-between"
     }
-
-
 });
-
 export default AddTaskModal;
