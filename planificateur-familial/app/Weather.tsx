@@ -6,9 +6,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { WEATHER_API_KEY } from '@env';
 
 const Weather = () => {
-  const [searchCity, setSearchCity] = useState('Paris');
-  const [displayCity, setDisplayCity] = useState('Paris');
-  
+  const [searchCity, setSearchCity] = useState('');
+  const [displayCity, setDisplayCity] = useState('');
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   interface WeatherData {
     name: string;
     main: {
@@ -33,11 +35,85 @@ const Weather = () => {
     }[];
   }
 
+  interface Suggestion {
+    name: string;
+    country: string;
+    lat: number;
+    lon: number;
+  }
+
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [forecastData, setForecastData] = useState<ForecastData | null>(null);
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Fonction pour chercher les suggestions
+  const fetchSuggestions = async (query: string) => {
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&appid=${WEATHER_API_KEY}`
+      );
+      if (!response.ok) {
+        throw new Error('Impossible de récupérer les suggestions');
+      }
+      const data = await response.json();
+      
+      // Filtrer les suggestions pour ne garder que celles qui contiennent le texte saisi
+      const filteredSuggestions = data.filter((suggestion: Suggestion) => {
+        const cityName = suggestion.name.toLowerCase();
+        const queryLower = query.toLowerCase();
+        return cityName.includes(queryLower);
+      });
+
+      // Trier les suggestions par ordre de longueur croissante
+      const sortedSuggestions = filteredSuggestions.sort((a, b) => {
+        return a.name.length - b.name.length;
+      });
+
+      // Filtrer pour ne garder qu'une seule ville par pays
+      const uniqueSuggestions = sortedSuggestions.reduce((acc: Suggestion[], current: Suggestion) => {
+        const existingCountry = acc.find(s => s.country === current.country);
+        if (!existingCountry) {
+          acc.push(current);
+        }
+        return acc;
+      }, []);
+
+      setSuggestions(uniqueSuggestions);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des suggestions:', error);
+    }
+  };
+
+  // Fonction pour sélectionner une suggestion
+  const selectSuggestion = async (suggestion: Suggestion) => {
+    setSearchCity(`${suggestion.name}, ${suggestion.country}`);
+    setShowSuggestions(false);
+    
+    // Utiliser les coordonnées de la suggestion sélectionnée
+    const currentResponse = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${suggestion.lat}&lon=${suggestion.lon}&appid=${WEATHER_API_KEY}&units=metric&lang=fr`
+    );
+    if (!currentResponse.ok) {
+      throw new Error('Impossible de récupérer la météo');
+    }
+    const currentData = await currentResponse.json();
+
+    setWeatherData(currentData);
+    setDisplayCity(suggestion.name);
+
+    // Récupérer les prévisions
+    const forecastResponse = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${suggestion.lat}&lon=${suggestion.lon}&appid=${WEATHER_API_KEY}&units=metric&lang=fr`
+    );
+    if (!forecastResponse.ok) {
+      throw new Error('Impossible de récupérer les prévisions');
+    }
+    const forecastData = await forecastResponse.json();
+    setForecastData(forecastData);
+  };
 
   // Fonction pour chercher par ville
   const fetchWeatherData = async (cityName: string) => {
@@ -53,12 +129,14 @@ const Weather = () => {
       }
       const currentData = await currentResponse.json();
       setWeatherData(currentData);
-      // Mettre à jour le nom de la ville affichée seulement si la requête est réussie
       setDisplayCity(cityName);
 
+      // Récupérer les coordonnées de la ville
+      const { lat, lon } = currentData.coord;
+      
       // Récupérer les prévisions
       const forecastResponse = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cityName)}&appid=${WEATHER_API_KEY}&units=metric&lang=fr`
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&lang=fr`
       );
       if (!forecastResponse.ok) {
         throw new Error('Impossible de récupérer les prévisions');
@@ -74,32 +152,50 @@ const Weather = () => {
     }
   };
 
-  // Fonction pour utiliser la position actuelle
+  // Fonction pour utiliser la localisation actuelle
   const useCurrentLocation = async () => {
-    setLoading(true);
-    setError(null);
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setError('Permission de localisation refusée');
-        fetchWeatherData('Paris'); // Charger Paris par défaut
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
+      const location = await Location.getCurrentPositionAsync({});
       setLocation(location);
+      
+      setSearchCity('');
+      setShowSuggestions(false);
+      
       await fetchWeatherByCoords(location.coords.latitude, location.coords.longitude);
-    } catch (err) {
-      setError('Erreur de géolocalisation');
-      fetchWeatherData('Paris'); // Charger Paris par défaut en cas d'erreur
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      setError('Impossible d\'obtenir la localisation');
+      console.error('Erreur de localisation:', error);
     }
   };
+
+  // Vérifier la permission de localisation au démarrage
+  useEffect(() => {
+    const checkLocationPermission = async () => {
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status === 'granted') {
+          await useCurrentLocation();
+        } else {
+          await useCurrentLocation();
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification des permissions:', error);
+      }
+    };
+
+    checkLocationPermission();
+  }, []);
 
   // Fonction pour récupérer la météo par coordonnées
   const fetchWeatherByCoords = async (lat: number, lon: number) => {
     try {
+      setLoading(true);
       const currentResponse = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&lang=fr`
       );
@@ -108,63 +204,50 @@ const Weather = () => {
       }
       const currentData = await currentResponse.json();
       setWeatherData(currentData);
-      // Mettre à jour le nom de la ville affichée avec le nom retourné par l'API
       setDisplayCity(currentData.name);
       
       // Récupérer les prévisions
       const forecastResponse = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&lang=fr`
       );
+      if (!forecastResponse.ok) {
+        throw new Error('Impossible de récupérer les prévisions');
+      }
       const forecastData = await forecastResponse.json();
       setForecastData(forecastData);
     } catch (error) {
-      console.error('Erreur lors de la récupération des données météo:', error);
+      setError('Erreur lors de la récupération des données météo');
+      console.error('Erreur:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Obtenir les prévisions pour les 4 prochains jours
+  // Obtenir les prévisions pour les 7 prochains jours à partir du lendemain
   const getNextDaysForecasts = () => {
     if (!forecastData) return [];
+    
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
     
     const uniqueDays = forecastData.list.reduce((acc, item) => {
       const date = new Date(item.dt * 1000);
       const dateStr = date.toISOString().split('T')[0];
       
-      if (!acc[dateStr] && date.getDate() > new Date().getDate()) {
+      // Ne prendre que les jours après demain
+      if (!acc[dateStr] && date >= tomorrow) {
         acc[dateStr] = item;
       }
       
       return acc;
     }, {});
 
-    return Object.values(uniqueDays).slice(0, 4);
+    return Object.values(uniqueDays).slice(0, 6);
   };
 
   // Mémoiser les prévisions pour éviter des calculs inutiles
   const nextDaysForecasts = useMemo(() => getNextDaysForecasts(), [forecastData]);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    const loadInitialData = async () => {
-      try {
-        if (isMounted) {
-          await fetchWeatherData('Paris');
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error('Erreur lors du chargement initial:', error);
-          setError('Erreur lors du chargement initial des données');
-        }
-      }
-    };
-    
-    loadInitialData();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   // Fonction pour obtenir les prévisions des 4 prochains jours
   const getGradientColors = (): [string, string] => {
@@ -195,6 +278,16 @@ const Weather = () => {
     return `http://openweathermap.org/img/wn/${icon}@2x.png`;
   };
 
+  // Gérer les changements dans l'input
+  const handleInputChange = (text: string) => {
+    setSearchCity(text);
+    if (text.length >= 2) {
+      fetchSuggestions(text);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
@@ -208,14 +301,10 @@ const Weather = () => {
         <View style={styles.searchRow}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Rechercher une ville..."
+            placeholder="Trouver une ville..."
             placeholderTextColor="rgba(255,255,255,0.7)"
             value={searchCity}
-            onChangeText={(text) => {
-              // N'accepte que les lettres, chiffres, espaces, tirets et apostrophes
-              const sanitizedText = text.replace(/[^\wÀ-ÿ\s\-']/gi, '');
-              setSearchCity(sanitizedText);
-            }}
+            onChangeText={handleInputChange}
             onSubmitEditing={() => {
               if (searchCity.trim() !== '') {
                 fetchWeatherData(searchCity);
@@ -225,12 +314,47 @@ const Weather = () => {
             }}
           />
           <TouchableOpacity 
+            style={styles.searchButton}
+            onPress={() => {
+              if (searchCity.trim() !== '') {
+                fetchWeatherData(searchCity);
+              }
+            }}
+          >
+            <Ionicons name="search" size={20} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity 
             style={styles.locationButton}
             onPress={useCurrentLocation}
           >
             <Ionicons name="location" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
+
+        {/* Afficher les suggestions */}
+        {showSuggestions && suggestions.length > 0 && (
+          <View style={styles.suggestionsContainer}>
+            <ScrollView
+              style={styles.suggestionsScroll}
+              showsVerticalScrollIndicator={false}
+            >
+              {suggestions.map((suggestion, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.suggestionItem}
+                  onPress={() => selectSuggestion(suggestion)}
+                >
+                  <Text style={styles.suggestionText}>
+                    {suggestion.name}
+                  </Text>
+                  <Text style={styles.suggestionCountry}>
+                    {suggestion.country}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Message d'erreur si présent */}
         {error && (
@@ -255,22 +379,20 @@ const Weather = () => {
           decelerationRate="fast"
         >
           {/* Météo actuelle */}
-          <View style={styles.weatherCard}>
-            <Text style={styles.cityText}>{displayCity}</Text>
-            {weatherData && (
-              <>
-                <Image 
-                  source={{ uri: getWeatherIconUrl(weatherData.weather[0].icon) }} 
-                  style={styles.weatherIcon} 
-                />
-                <Text style={styles.tempText}>
-                  {Math.round(weatherData.main.temp)}°C
-                </Text>
-              </>
-            )}
-          </View>
+          {weatherData && (
+            <View style={styles.weatherCard}>
+              <Text style={styles.cityText}>{displayCity}</Text>
+              <Image 
+                source={{ uri: getWeatherIconUrl(weatherData.weather[0].icon) }} 
+                style={styles.weatherIcon} 
+              />
+              <Text style={styles.tempText}>
+                {Math.round(weatherData.main.temp)}°C
+              </Text>
+            </View>
+          )}
 
-          {/* Prévisions des 4 prochains jours */}
+          {/* Prévisions des 7 prochains jours */}
           {nextDaysForecasts.map((forecast, index) => (
             <View key={forecast.dt} style={styles.weatherCard}>
               <Text style={styles.dateText}>
@@ -296,7 +418,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    height: 180, // Hauteur fixe pour le composant météo
+    height: 180, // Hauteur ajustée
     width: '100%',
     borderRadius: 20,
   },
@@ -379,6 +501,51 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
+  },
+
+  searchButton : {
+    marginLeft:8,
+    padding: 10,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 5,
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 10,
+    padding: 5,
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    maxHeight: 130, // Hauteur ajustée pour s'adapter à la hauteur du composant
+  },
+  suggestionsScroll: {
+    maxHeight: 130,
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  suggestionText: {
+    color: '#333',
+    fontSize: 16,
+  },
+  suggestionCountry: {
+    color: '#666',
+    fontSize: 14,
   },
 });
 

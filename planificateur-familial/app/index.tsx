@@ -156,8 +156,7 @@ export default function Index() {
                     <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={"/family"}/>
                     <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course" route={"/shoppingList"}/>
                 </View>
-                <Weather />
-
+                <Weather/>
             </View> 
         </LinearGradient>
     );
