@@ -16,14 +16,21 @@ import {
 import Header from "@/components/Header";
 import ListCard from "@/app/ShoppingList/ShoppingListComponents/listCard";
 import AddListModal from "@/app/ShoppingList/ShoppingListComponents/addListModal";
-import {useShoppingLists} from "@/app/ShoppingList/shoppingListController";
+import {getShoppingListById, useShoppingListById, useShoppingLists} from "@/app/ShoppingList/shoppingListController";
+import {useLocalSearchParams} from "expo-router";
+import ItemCard from "@/app/ShoppingList/ShoppingListComponents/itemCard";
+import AddItemModal from "@/app/ShoppingList/ShoppingListComponents/addItemModal";
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const ShoppingListHome = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const { shoppingLists, loading } = useShoppingLists();
+    const JSONparams = useLocalSearchParams();
+    const id = JSONparams.id
+
+    const { shoppingList, loading } = useShoppingListById(id);
+
 
     return (
         <LinearGradient
@@ -47,19 +54,17 @@ const ShoppingListHome = () => {
                 <ScrollView style={styles.listCardContainer}>
                     {loading ? (
                         <ActivityIndicator size="large" color="#4FE2FF" />
+                    ) : shoppingList.items.length > 0 ? (
+                        shoppingList.items.map((item) => <ItemCard key={item.id} item={item} />)
                     ) : (
-                        shoppingLists.map(list => <ListCard
-                            key={list.id}
-                            list={list}
-                        />)
+                        <Text>Aucun item dans cette liste</Text>
                     )}
-
                 </ScrollView>
             </View>
             <TouchableOpacity style={styles.newTaskButton} onPress={(): void => setModalVisible(true)}>
                 <Text style={styles.buttonLabel}>+</Text>
             </TouchableOpacity>
-            <AddListModal modalVisible={modalVisible} setModalVisible={setModalVisible}></AddListModal>
+            <AddItemModal listId={id} modalVisible={modalVisible} setModalVisible={setModalVisible}></AddItemModal>
         </LinearGradient>
     );
 };

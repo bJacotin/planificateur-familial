@@ -13,20 +13,18 @@ import {
     Platform, ScrollView
 } from 'react-native';
 
-import { ShoppingList } from '../ShoppingListTypes/shoppingListsTypes';
+import {ShoppingListItem} from '../ShoppingListTypes/shoppingListsTypes';
 import {RelativePathString, useRouter} from "expo-router";
 
-const ListCard: React.FC<{ list: ShoppingList }> = ({ list }) => {
+const ListCard: React.FC<{ item: ShoppingListItem }> = ({ item }) => {
     const router = useRouter();
-    const handlePress = () => {
-        router.push({pathname:"/ShoppingList/"+list.id as RelativePathString, params: {id:list.id}});
-    };
+
     return (
-        <TouchableOpacity style={styles.card} onPress={() =>handlePress()}>
+        <TouchableOpacity style={styles.card} >
             <View>
-                <Text style={styles.title}>{list.name}</Text>
+                <Text style={styles.title}>{item.name}</Text>
                 <View style={styles.sizeBg}>
-                    <Text style={styles.size}>{list.items.length} éléments</Text>
+                    <Text style={styles.size}>Qte :{item.quantity}</Text>
                 </View>
             </View>
             <Image style={styles.arrow} source={require("@/assets/images/arrowLeft.png")} />
