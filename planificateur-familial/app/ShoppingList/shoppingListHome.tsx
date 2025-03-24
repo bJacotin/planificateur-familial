@@ -10,17 +10,21 @@ import {
     StyleSheet,
     Image,
     Dimensions,
-    ScrollView
+    ScrollView, ActivityIndicator
 } from 'react-native';
 
 import Header from "@/components/Header";
 import ListCard from "@/app/ShoppingList/ShoppingListComponents/listCard";
 import AddListModal from "@/app/ShoppingList/ShoppingListComponents/addListModal";
+import {useShoppingLists} from "@/app/ShoppingList/shoppingListController";
+
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const ShoppingListHome = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const { shoppingLists, loading } = useShoppingLists();
+
     return (
         <LinearGradient
             colors={['#4FE2FF', '#004B5A', '#002C35']}
@@ -41,9 +45,15 @@ const ShoppingListHome = () => {
                     <Image style={styles.shoppingBag} source={require('@/assets/images/shoppingBag.png')} ></Image>
                 </View>
                 <ScrollView style={styles.listCardContainer}>
-                    <ListCard></ListCard>
-                    <ListCard></ListCard>
-                    <ListCard></ListCard>
+                    {loading ? (
+                        <ActivityIndicator size="large" color="#4FE2FF" />
+                    ) : (
+                        shoppingLists.map(list => <ListCard
+                            key={list.id}
+                            list={list}
+                            onPress={() => console.log(`Todo`)}
+                        />)
+                    )}
 
                 </ScrollView>
             </View>
@@ -51,7 +61,6 @@ const ShoppingListHome = () => {
                 <Text style={styles.buttonLabel}>+</Text>
             </TouchableOpacity>
             <AddListModal modalVisible={modalVisible} setModalVisible={setModalVisible}></AddListModal>
-
         </LinearGradient>
     );
 };

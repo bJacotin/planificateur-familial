@@ -1,4 +1,3 @@
-
 import React, {useEffect, useState} from 'react';
 import {
     View,
@@ -13,24 +12,23 @@ import {
     StatusBar,
     Platform, ScrollView
 } from 'react-native';
-import {white} from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
-const ScreenWidth = Dimensions.get('window').width;
-const ScreenHeight = Dimensions.get('window').height;
+import { ShoppingList } from '../ShoppingListTypes/shoppingListsTypes';
 
-const ListCard = () => {
+const ListCard: React.FC<{ list: ShoppingList; onPress: () => void }> = ({ list, onPress }) => {
     return (
-        <View style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={onPress}>
             <View>
-                <Text style={styles.title}>Liste de course</Text>
+                <Text style={styles.title}>{list.name}</Text>
                 <View style={styles.sizeBg}>
-                    <Text style={styles.size}>8 élements</Text>
+                    <Text style={styles.size}>{list.items.length} éléments</Text>
                 </View>
             </View>
-            <Image style={styles.arrow} source={require("@/assets/images/arrowLeft.png")}></Image>
-        </View>
+            <Image style={styles.arrow} source={require("@/assets/images/arrowLeft.png")} />
+        </TouchableOpacity>
     );
 };
+
 
 export default ListCard;
 
