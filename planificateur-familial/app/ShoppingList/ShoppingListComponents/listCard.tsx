@@ -15,14 +15,17 @@ import {
 
 import { ShoppingList } from '../ShoppingListTypes/shoppingListsTypes';
 import {RelativePathString, useRouter} from "expo-router";
+import {deleteList} from "@/app/ShoppingList/shoppingListController";
+import ConfirmDeleteModal from "@/components/modal/confirmDeleteModal";
 
 const ListCard: React.FC<{ list: ShoppingList }> = ({ list }) => {
     const router = useRouter();
+    const [deleteModalVisible,setDeleteModalVisible] = useState<boolean>(false);
     const handlePress = () => {
         router.push({pathname:"/ShoppingList/"+list.id as RelativePathString, params: {id:list.id}});
     };
     return (
-        <TouchableOpacity style={styles.card} onPress={() =>handlePress()}>
+        <TouchableOpacity style={styles.card} onPress={() =>handlePress()} onLongPress={() =>setDeleteModalVisible(true)}>
             <View>
                 <Text style={styles.title}>{list.name}</Text>
                 <View style={styles.sizeBg}>
@@ -30,6 +33,7 @@ const ListCard: React.FC<{ list: ShoppingList }> = ({ list }) => {
                 </View>
             </View>
             <Image style={styles.arrow} source={require("@/assets/images/arrowLeft.png")} />
+            <ConfirmDeleteModal modalVisible={deleteModalVisible} setModalVisible={setDeleteModalVisible} handlePress={() => deleteList(list.id)} deletedObject={"la liste"}></ConfirmDeleteModal>
         </TouchableOpacity>
     );
 };

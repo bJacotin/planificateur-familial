@@ -24,7 +24,7 @@ import AddItemModal from "@/app/ShoppingList/ShoppingListComponents/addItemModal
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
-const ShoppingListHome = () => {
+const ShoppingList = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const JSONparams = useLocalSearchParams();
     const id = JSONparams.id
@@ -69,7 +69,7 @@ const ShoppingListHome = () => {
     );
 };
 
-export default ShoppingListHome;
+export default ShoppingList;
 
 const styles = StyleSheet.create({
     mainContainer: {

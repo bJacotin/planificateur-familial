@@ -16,13 +16,15 @@ import {
 import Header from "@/components/Header";
 import ListCard from "@/app/ShoppingList/ShoppingListComponents/listCard";
 import AddListModal from "@/app/ShoppingList/ShoppingListComponents/addListModal";
-import {useShoppingLists} from "@/app/ShoppingList/shoppingListController";
+import {deleteList, useShoppingLists} from "@/app/ShoppingList/shoppingListController";
+import ConfirmDeleteModal from "@/components/modal/confirmDeleteModal";
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const ShoppingListHome = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+
     const { shoppingLists, loading } = useShoppingLists();
 
     return (
@@ -60,6 +62,7 @@ const ShoppingListHome = () => {
                 <Text style={styles.buttonLabel}>+</Text>
             </TouchableOpacity>
             <AddListModal modalVisible={modalVisible} setModalVisible={setModalVisible}></AddListModal>
+
         </LinearGradient>
     );
 };
