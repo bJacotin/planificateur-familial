@@ -5,6 +5,7 @@ import {arrayUnion, doc, getDoc, onSnapshot, updateDoc} from "@firebase/firestor
 
 import {ShoppingList,ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
 
+
 const createShoppingList = async (listName: string, members: string[], items: ShoppingListItem[] = []): Promise<string> => {
     const auth = FIREBASE_AUTH;
 
@@ -140,6 +141,42 @@ const createShoppingListItem = async (listId: string, item: ShoppingListItem) =>
         return false;
     }
 };
+
+
+const toggleItemChecked = async (listId: string, itemId: string, checked: boolean): Promise<void> => {
+    try {
+        const listRef = doc(FIREBASE_FIRESTORE, "shoppingLists", listId);
+        const docSnap = await getDoc(listRef);
+
+        if (!docSnap.exists()) {
+            console.error("Liste non trouvée !");
+            return;
+        }
+
+        const listData = docSnap.data();
+        const updatedItems = listData.items.map((item: ShoppingListItem) =>
+            item.id === itemId ? { ...item, checked: !checked } : item
+        );
+
+        await updateDoc(listRef, { items: updatedItems });
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'état checked :", error);
+    }
+};
+const listenToItemChecked = (listId: string, itemId: string, callback: (checked: boolean) => void): (() => void) => {
+    const listRef = doc(FIREBASE_FIRESTORE, "shoppingLists", listId);
+
+    const unsubscribe = onSnapshot(listRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const listData = snapshot.data();
+            const item = listData.items.find((item: ShoppingListItem) => item.id === itemId);
+            callback(item ? item.checked || false : false);
+        }
+    });
+
+    return unsubscribe;
+};
+
 const deleteList = async (listId: string) => {
     try {
         if (!listId) {
@@ -153,4 +190,4 @@ const deleteList = async (listId: string) => {
         console.error("Erreur lors de la suppression de la liste :", error);
     }
 };
-export { createShoppingList, getUserShoppingLists , useShoppingLists, useShoppingListById, createShoppingListItem, deleteList};
+export { createShoppingList, getUserShoppingLists , useShoppingLists, useShoppingListById, createShoppingListItem, deleteList, toggleItemChecked,listenToItemChecked};

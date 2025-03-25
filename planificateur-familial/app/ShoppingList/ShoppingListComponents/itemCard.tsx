@@ -14,10 +14,24 @@ import {
 } from 'react-native';
 
 import {ShoppingListItem} from '../ShoppingListTypes/shoppingListsTypes';
-import {RelativePathString, useRouter} from "expo-router";
+import {listenToItemChecked, toggleItemChecked} from "@/app/ShoppingList/shoppingListController";
 
-const ListCard: React.FC<{ item: ShoppingListItem }> = ({ item }) => {
-    const router = useRouter();
+
+const ItemCard: React.FC<{ listId : string, item: ShoppingListItem }> = ({ item, listId }) => {
+
+
+    const [checked, setChecked] = useState<boolean>(item.checked || false);
+
+    useEffect(() => {
+        const unsubscribe = listenToItemChecked(listId, item.id, setChecked);
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [listId, item.id]);
+
+    const handleCheckPress = () => {
+        toggleItemChecked(listId, item.id, checked);
+    };
 
     return (
         <TouchableOpacity style={styles.card} >
@@ -27,13 +41,15 @@ const ListCard: React.FC<{ item: ShoppingListItem }> = ({ item }) => {
                     <Text style={styles.size}>Qte :{item.quantity}</Text>
                 </View>
             </View>
-            <Image style={styles.arrow} source={require("@/assets/images/arrowLeft.png")} />
+            <TouchableOpacity style={styles.emptyButton} onPress={() => handleCheckPress()}>
+                {checked && <View style={styles.innerButton} />}
+            </TouchableOpacity>
         </TouchableOpacity>
     );
 };
 
 
-export default ListCard;
+export default ItemCard;
 
 const styles = StyleSheet.create({
     card: {
@@ -82,6 +98,25 @@ const styles = StyleSheet.create({
         fontSize:14,
         fontFamily:"Poppins_Medium",
         bottom:2
+    },
+    emptyButton: {
+        width:24,
+        height:24,
+        borderRadius:9,
+        borderWidth:3,
+        borderColor:"white",
+        backgroundColor:"#3FC3DD",
+        justifyContent:"center",
+        alignItems:"center",
+        alignSelf:"center",
+        marginRight:20
+    },
+    innerButton: {
+        width:14,
+        height:14,
+        borderRadius:4,
+        backgroundColor:"white"
     }
+
 
 });
