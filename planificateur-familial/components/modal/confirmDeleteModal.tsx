@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {
     Modal,
     View,
@@ -30,13 +31,14 @@ const ConfirmDeleteModal: React.FC<confirmDeleteModalProps> = ({ modalVisible, s
             transparent={true}
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}
+
         >
-            <TouchableWithoutFeedback onPress={() => {}}>
+
                 <View style={styles.modalOverlay}>
                         <View style={styles.mainContainer}>
                             <Text style={styles.mainText}>Supprimer {deletedObject}</Text>
                             <View style={styles.buttonContainer}>
-                                <TouchableOpacity style={styles.cancelButtonWrapper}>
+                                <TouchableOpacity style={styles.cancelButtonWrapper} onPress={()=> setModalVisible(false)}>
                                     <Text style={styles.cancelText}>Annuler</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.deleteButtonWrapper} onPress={() => handlePress()}>
@@ -46,7 +48,7 @@ const ConfirmDeleteModal: React.FC<confirmDeleteModalProps> = ({ modalVisible, s
 
                         </View>
                 </View>
-            </TouchableWithoutFeedback>
+
         </Modal>
     );
 };
