@@ -52,41 +52,43 @@ const Weather = () => {
   const fetchSuggestions = async (query: string) => {
     try {
       const response = await fetch(
-        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&appid=${WEATHER_API_KEY}`
+        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=10&lang=fr&appid=${WEATHER_API_KEY}`
       );
       if (!response.ok) {
         throw new Error('Impossible de récupérer les suggestions');
       }
       const data = await response.json();
       
-      // Filtrer les suggestions pour ne garder que celles qui contiennent le texte saisi
+      // Log des suggestions récupérées
+      console.log('Suggestions récupérées:', data);
+      
+      // Filtrer les suggestions de manière plus flexible
       const filteredSuggestions = data.filter((suggestion: Suggestion) => {
         const cityName = suggestion.name.toLowerCase();
         const queryLower = query.toLowerCase();
-        return cityName.includes(queryLower);
+        return (
+          cityName.startsWith(queryLower) || 
+          levenshteinDistance(cityName, queryLower) <= 10
+        );
       });
 
-      // Trier les suggestions par ordre de longueur croissante
-      const sortedSuggestions = filteredSuggestions.sort((a, b) => {
-        return a.name.length - b.name.length;
-      });
-
-      // Filtrer pour ne garder qu'une seule ville par pays
-      const uniqueSuggestions = sortedSuggestions.reduce((acc: Suggestion[], current: Suggestion) => {
-        const existingCountry = acc.find(s => s.country === current.country);
-        if (!existingCountry) {
-          acc.push(current);
-        }
-        return acc;
-      }, []);
+      const uniqueSuggestions = filteredSuggestions
+      .filter((suggestion, index, self) => 
+        index === self.findIndex((s) => (
+          s.name === suggestion.name && 
+          s.country === suggestion.country
+        ))
+      )
+      .slice(0, 10);
 
       setSuggestions(uniqueSuggestions);
-      setShowSuggestions(true);
+      setShowSuggestions(uniqueSuggestions.length > 0);
     } catch (error) {
-      console.error('Erreur lors de la récupération des suggestions:', error);
+      setError('Erreur lors de la recherche de suggestions');
+      console.error('Erreur:', error);
     }
   };
-
+  
   // Fonction pour sélectionner une suggestion
   const selectSuggestion = async (suggestion: Suggestion) => {
     setSearchCity(`${suggestion.name}, ${suggestion.country}`);
@@ -144,6 +146,10 @@ const Weather = () => {
       const forecastData = await forecastResponse.json();
       console.log('Données de prévision reçues:', forecastData.list.length, 'périodes');
       setForecastData(forecastData);
+
+      // Réinitialiser les suggestions après une recherche réussie
+      setShowSuggestions(false);
+      setSuggestions([]);
     } catch (err) {
       setError('Impossible de trouver la météo pour cette ville');
       console.error('Erreur:', err);
@@ -280,13 +286,49 @@ const Weather = () => {
 
   // Gérer les changements dans l'input
   const handleInputChange = (text: string) => {
+    // Réinitialiser l'erreur lors de la saisie
+    if (error) setError(null);
+    
     setSearchCity(text);
     if (text.length >= 2) {
       fetchSuggestions(text);
     } else {
       setShowSuggestions(false);
+      setSuggestions([]);
     }
   };
+
+
+function levenshteinDistance(a: string, b: string): number {
+  const matrix = [];
+
+  // Increment along the first column of each row
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+
+  // Increment each column in the first row
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill in the rest of the matrix
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1, // insertion
+          matrix[i - 1][j] + 1 // deletion
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -511,6 +553,7 @@ const styles = StyleSheet.create({
   },
   suggestionsContainer: {
     position: 'absolute',
+    height: 130,
     top: 50,
     left: 0,
     right: 0,
