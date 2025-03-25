@@ -14,12 +14,13 @@ import {
 } from 'react-native';
 
 import {ShoppingListItem} from '../ShoppingListTypes/shoppingListsTypes';
-import {listenToItemChecked, toggleItemChecked} from "@/app/ShoppingList/shoppingListController";
+import {deleteItem, listenToItemChecked, toggleItemChecked} from "@/app/ShoppingList/shoppingListController";
+import ConfirmDeleteModal from "@/components/modal/confirmDeleteModal";
 
 
 const ItemCard: React.FC<{ listId : string, item: ShoppingListItem }> = ({ item, listId }) => {
 
-
+    const [modalVisible,setModalVisible] = useState<boolean>(false)
     const [checked, setChecked] = useState<boolean>(item.checked || false);
 
     useEffect(() => {
@@ -34,7 +35,7 @@ const ItemCard: React.FC<{ listId : string, item: ShoppingListItem }> = ({ item,
     };
 
     return (
-        <TouchableOpacity style={styles.card} >
+        <TouchableOpacity style={styles.card} onLongPress={() => setModalVisible(true)} >
             <View>
                 <Text style={styles.title}>{item.name}</Text>
                 <View style={styles.sizeBg}>
@@ -44,7 +45,9 @@ const ItemCard: React.FC<{ listId : string, item: ShoppingListItem }> = ({ item,
             <TouchableOpacity style={styles.emptyButton} onPress={() => handleCheckPress()}>
                 {checked && <View style={styles.innerButton} />}
             </TouchableOpacity>
+            <ConfirmDeleteModal modalVisible={modalVisible} setModalVisible={setModalVisible} handlePress={() =>deleteItem(item,listId)} deletedObject={"l'objet"}></ConfirmDeleteModal>
         </TouchableOpacity>
+
     );
 };
 
