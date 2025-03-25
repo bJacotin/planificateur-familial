@@ -1,7 +1,7 @@
 import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {addDoc, collection, deleteDoc, getDocs, query, serverTimestamp, where} from "firebase/firestore";
 import {useEffect, useState} from "react";
-import {arrayUnion, doc, getDoc, onSnapshot, updateDoc} from "@firebase/firestore";
+import {arrayRemove, arrayUnion, doc, getDoc, onSnapshot, updateDoc} from "@firebase/firestore";
 
 import {ShoppingList,ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
 
@@ -176,6 +176,28 @@ const listenToItemChecked = (listId: string, itemId: string, callback: (checked:
 
     return unsubscribe;
 };
+const deleteItem = async (item:ShoppingListItem, listId: string) => {
+    try {
+        if (!item || !listId) {
+            console.error("ID de l'item ou de la liste non valide.");
+            return;
+        }
+
+        const listRef = doc(FIREBASE_FIRESTORE, "shoppingLists", listId);
+
+
+        await updateDoc(listRef, {
+            items: arrayRemove({ id: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                checked: item.checked,})
+        });
+
+        console.log(`Item avec l'ID ${item.id} supprimé avec succès de la liste ${listId}`);
+    } catch (error) {
+        console.error("Erreur lors de la suppression de l'item :", error);
+    }
+};
 
 const deleteList = async (listId: string) => {
     try {
@@ -190,4 +212,4 @@ const deleteList = async (listId: string) => {
         console.error("Erreur lors de la suppression de la liste :", error);
     }
 };
-export { createShoppingList, getUserShoppingLists , useShoppingLists, useShoppingListById, createShoppingListItem, deleteList, toggleItemChecked,listenToItemChecked};
+export { createShoppingList, getUserShoppingLists , useShoppingLists, useShoppingListById, createShoppingListItem, deleteList,deleteItem, toggleItemChecked,listenToItemChecked};
