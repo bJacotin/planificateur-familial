@@ -16,7 +16,7 @@ import {
 import Header from "@/components/Header";
 import ListCard from "@/app/ShoppingList/ShoppingListComponents/listCard";
 import AddListModal from "@/app/ShoppingList/ShoppingListComponents/addListModal";
-import {getShoppingListById, useShoppingListById, useShoppingLists} from "@/app/ShoppingList/shoppingListController";
+import {useShoppingListById} from "@/app/ShoppingList/shoppingListController";
 import {useLocalSearchParams} from "expo-router";
 import ItemCard from "@/app/ShoppingList/ShoppingListComponents/itemCard";
 import AddItemModal from "@/app/ShoppingList/ShoppingListComponents/addItemModal";
@@ -55,7 +55,7 @@ const ShoppingList = () => {
                     {loading ? (
                         <ActivityIndicator size="large" color="#4FE2FF" />
                     ) : shoppingList.items.length > 0 ? (
-                        shoppingList.items.map((item) => <ItemCard key={item.id} item={item} />)
+                        shoppingList.items.map((item) => <ItemCard key={item.id} listId={id} item={item} />)
                     ) : (
                         <Text>Aucun item dans cette liste</Text>
                     )}

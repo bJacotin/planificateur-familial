@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {
     Modal,
     View,
