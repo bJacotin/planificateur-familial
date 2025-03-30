@@ -18,69 +18,21 @@ import MemberCard from "@/app/ShoppingList/ShoppingListComponents/listMemberCard
 import {doc, getDoc} from "@firebase/firestore";
 import FamilyMemberCard from "@/app/ShoppingList/ShoppingListComponents/familyMemberCard";
 import ListMemberCard from "@/app/ShoppingList/ShoppingListComponents/listMemberCard";
+import {User} from "@/types/user";
 const ScreenWidth = Dimensions.get('window').width;
 
 interface AddMembersModalProps {
     membersModalVisible: boolean;
     setMembersModalVisible: (visible: boolean) => void;
-    membersIdList: string[];
-    familyMembersIdList: string[]
+    membersList: User[];
+    familyMembersList: User[];
+    setMembersList: (members: any[]) => void;
+    setFamilyMembersList: (members: any[]) => void;
 }
 
-const AddMembersModal: React.FC<AddMembersModalProps> = ({membersModalVisible , setMembersModalVisible, familyMembersIdList, membersIdList }) => {
-    const [familyMembers, setFamilyMembers] = useState(["hMIET43vTueF26Cefh78nlojxDq2","hMIET43vTueF26Cefh78nlojxDq2","hMIET43vTueF26Cefh78nlojxDq2",])
-    const [listMembers, setListMembers] = useState(["hMIET43vTueF26Cefh78nlojxDq2","hMIET43vTueF26Cefh78nlojxDq2",])
-        // useEffect(() => {
-    //     fetchFamilyMembers();
-    // }, []);
-    const fetchFamilyMembers = async () => {
-        const auth = FIREBASE_AUTH;
-
-        if (!auth.currentUser) {
-            console.error("L'utilisateur n'est pas connecté.");
-            return;
-        }
-
-        try {
-            const userRef = doc(FIREBASE_FIRESTORE, "users", auth.currentUser.uid);
-            const userSnap = await getDoc(userRef);
-
-            if (!userSnap.exists()) {
-                console.error("Le document utilisateur n'existe pas.");
-                return;
-            }
+const AddMembersModal: React.FC<AddMembersModalProps> = ({membersModalVisible , setMembersModalVisible, familyMembersList, membersList,setMembersList, setFamilyMembersList}) => {
 
 
-            const userData = userSnap.data();
-            if (userData.families && userData.families.length > 0) {
-                const familyId = userData.families[0]; // ToDo ici on ne prend que la liste n°1
-                const familyRef = doc(FIREBASE_FIRESTORE, "families", familyId);
-                const familySnap = await getDoc(familyRef);
-
-                if (familySnap.exists()) {
-                    const familyData = familySnap.data();
-                    if (familyData.members && familyData.members.length > 0) {
-                        const membersData = await Promise.all(
-                            familyData.members.map(async (memberId: string) => {
-                                const memberRef = doc(FIREBASE_FIRESTORE, "users", memberId);
-                                const memberSnap = await getDoc(memberRef);
-                                if (memberSnap.exists()) {
-                                    const memberData = memberSnap.data();
-                                    return { ...memberData,};
-                                }
-                                return null;
-                            })
-                        );
-
-                        setFamilyMembers(membersData); // ToDO potentiel bug user delete
-                    }else { setFamilyMembers([])}
-
-                }
-            }
-        } catch (error) {
-            console.error("Erreur lors de la récupération des membres :", error);
-        }
-    };
     const handleClosePress =() => {
 
     }
@@ -102,14 +54,14 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({membersModalVisible , 
                         <View>
                             <Text style={styles.text}>Membres de la Liste</Text>
                             <View style={styles.listMembersSection}>
-                                {listMembers.map(member => (
+                                {membersList.map(member => (
                                     <ListMemberCard key={member.id} userId={member.id} />))}
                             </View>
                         </View>
                         <View>
                             <Text style={styles.text}>Votre Famille</Text>
                             <View style={styles.familyMembersSection}>
-                                {familyMembers.map(member => (
+                                {familyMembersList.map(member => (
                                     <ListMemberCard key={member.id} userId={member.id} />))}
                             </View>
                         </View>
