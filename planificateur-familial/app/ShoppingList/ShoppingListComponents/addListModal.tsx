@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {
     Modal,
@@ -15,6 +15,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {createShoppingList} from "@/app/ShoppingList/shoppingListController";
 import AddMembersModal from "@/app/ShoppingList/ShoppingListComponents/addMembersModal";
+import {useUserAndFamily} from "@/app/launchController";
+import {User} from "@/types/user";
 const ScreenWidth = Dimensions.get('window').width;
 
 interface AddTaskModalProps {
@@ -22,11 +24,25 @@ interface AddTaskModalProps {
     setModalVisible: (visible: boolean) => void;
 }
 
-const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisible }) => {
+const AddListModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisible }) => {
+    const { user, family } = useUserAndFamily();
     const [listName, setListName] = useState("");
     const [membersModalVisible,setMembersModalVisible] = useState<boolean>(false)
-    const membersList: string[] = [FIREBASE_AUTH.currentUser?.uid];
-    const familyMembersList: string[] = [];
+    const [membersList, setMembersList] = useState<User[]>([]);
+    const [familyMembersList, setFamilyMembersList] = useState<User[]>([]);
+
+    useEffect(() => {
+        if (user && user.id) {
+            setMembersList([user]);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        console.log()
+        if (family && family.members) {
+            setFamilyMembersList(family.members);
+        }
+    }, [family]);
 
     const handleCreateList = async () => {
         if (!listName.trim()) {
@@ -35,13 +51,12 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
         }
 
         try {
-            const userId = FIREBASE_AUTH.currentUser?.uid;
-            if (!userId) {
+            if (!user) {
                 console.error("Utilisateur non connecté.");
                 return;
             }
 
-            const listId = await createShoppingList(listName, membersList);
+            const listId = await createShoppingList(listName, membersList,user);
             if (listId) {
                 console.log("Liste créée avec succès !");
                 setListName("");
@@ -91,8 +106,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
             </TouchableWithoutFeedback>
             <AddMembersModal membersModalVisible={membersModalVisible}
                              setMembersModalVisible={setMembersModalVisible}
-                             membersIdList={membersList}
-                             familyMembersIdList={familyMembersList}></AddMembersModal>
+                             membersList={membersList}
+                             familyMembersList={familyMembersList}
+                             setFamilyMembersList={setFamilyMembersList}
+                             setMembersList={setMembersList}
+            ></AddMembersModal>
         </Modal>
     );
 };
@@ -169,4 +187,4 @@ const styles = StyleSheet.create({
         justifyContent:"space-between"
     }
 });
-export default AddTaskModal;
+export default AddListModal;

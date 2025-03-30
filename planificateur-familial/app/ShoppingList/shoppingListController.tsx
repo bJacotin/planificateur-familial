@@ -4,9 +4,10 @@ import {useEffect, useState} from "react";
 import {arrayRemove, arrayUnion, doc, getDoc, onSnapshot, updateDoc} from "@firebase/firestore";
 
 import {ShoppingList,ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
+import {User} from "@/types/user";
 
 
-const createShoppingList = async (listName: string, members: string[]): Promise<string> => {
+const createShoppingList = async (listName: string, members: User[], owner:User): Promise<string> => {
     const auth = FIREBASE_AUTH;
     const items: ShoppingListItem[] = []
     if (!auth.currentUser) {
@@ -20,7 +21,7 @@ const createShoppingList = async (listName: string, members: string[]): Promise<
         const newList: ShoppingList = {
             name: listName,
             members: members,
-            owner: auth.currentUser.uid,
+            owner: owner,
             createdAt: serverTimestamp(),
             items: items
         };

@@ -23,6 +23,7 @@ import {LinearGradient} from "expo-linear-gradient";
 import {ProfilePicture} from '@/components/ProfilePicture';
 import {IconServices} from "@/components/IconServices";
 import {doc, getDoc} from "@firebase/firestore";
+import {useUserAndFamily} from "@/app/launchController";
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
