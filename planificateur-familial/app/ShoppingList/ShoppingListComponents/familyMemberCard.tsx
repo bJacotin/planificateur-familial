@@ -15,9 +15,10 @@ import {
 
 
 import {FIREBASE_AUTH} from "@/FirebaseConfig";
+import {User} from "@/types/user";
 const ScreenWidth = Dimensions.get('window').width;
 
-const FamilyMemberCard: React.FC<{ userId : string }> = ({ userId }) => {
+const FamilyMemberCard: React.FC<{ user : User }> = ({ user }) => {
 
 
 
@@ -25,11 +26,11 @@ const FamilyMemberCard: React.FC<{ userId : string }> = ({ userId }) => {
         <View style={styles.cardWrapper}>
             <View style={styles.userDataContainer}>
 
-                <Text> Test</Text>
+                <Text>{user.name}</Text>
             </View>
             <TouchableOpacity style={styles.button}>
                 <View style={styles.buttonIcon}></View>
-                <View style={[styles.buttonIcon, { transform: [{ rotate: '90deg' }] }]}></View>
+
             </TouchableOpacity>
         </View>
 
