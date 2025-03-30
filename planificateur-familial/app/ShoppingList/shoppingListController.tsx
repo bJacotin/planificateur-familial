@@ -6,9 +6,9 @@ import {arrayRemove, arrayUnion, doc, getDoc, onSnapshot, updateDoc} from "@fire
 import {ShoppingList,ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
 
 
-const createShoppingList = async (listName: string, members: string[], items: ShoppingListItem[] = []): Promise<string> => {
+const createShoppingList = async (listName: string, members: string[]): Promise<string> => {
     const auth = FIREBASE_AUTH;
-
+    const items: ShoppingListItem[] = []
     if (!auth.currentUser) {
         throw new Error("L'utilisateur n'est pas connecté.");
     }
@@ -52,7 +52,7 @@ const getUserShoppingLists = async (): Promise<ShoppingList[]> => {
         const querySnapshot = await getDocs(q);
 
         const shoppingLists: ShoppingList[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as ShoppingList);
-
+5
         return shoppingLists;
     } catch (error) {
         console.error("Erreur lors de la récupération des listes de courses :", error);
