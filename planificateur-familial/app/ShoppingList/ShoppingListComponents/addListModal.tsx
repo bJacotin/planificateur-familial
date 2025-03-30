@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {createShoppingList} from "@/app/ShoppingList/shoppingListController";
+import AddMembersModal from "@/app/ShoppingList/ShoppingListComponents/addMembersModal";
 const ScreenWidth = Dimensions.get('window').width;
 
 interface AddTaskModalProps {
@@ -23,6 +24,9 @@ interface AddTaskModalProps {
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisible }) => {
     const [listName, setListName] = useState("");
+    const [membersModalVisible,setMembersModalVisible] = useState<boolean>(false)
+    const membersList: string[] = [FIREBASE_AUTH.currentUser?.uid];
+    const familyMembersList: string[] = [];
 
     const handleCreateList = async () => {
         if (!listName.trim()) {
@@ -37,7 +41,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                 return;
             }
 
-            const listId = await createShoppingList(listName, [userId]);
+            const listId = await createShoppingList(listName, membersList);
             if (listId) {
                 console.log("Liste créée avec succès !");
                 setListName("");
@@ -47,6 +51,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
             console.error("Erreur lors de la création de la liste :", error);
         }
     };
+
     return (
         <Modal
             statusBarTranslucent={true}
@@ -73,7 +78,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                             style={{ width: '100%', height: 10 }}
                         />
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.parameterContainer}>
+                            <TouchableOpacity style={styles.parameterContainer} onPress={() => setMembersModalVisible(true)}>
                                 <Image style={styles.iconScrollList} source={require("@/assets/images/familyIcon.png")} />
                                 <Text style={styles.textScrollList}>Membres</Text>
                             </TouchableOpacity>
@@ -84,6 +89,10 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                     </KeyboardAvoidingView>
                 </View>
             </TouchableWithoutFeedback>
+            <AddMembersModal membersModalVisible={membersModalVisible}
+                             setMembersModalVisible={setMembersModalVisible}
+                             membersIdList={membersList}
+                             familyMembersIdList={familyMembersList}></AddMembersModal>
         </Modal>
     );
 };
