@@ -55,14 +55,14 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({membersModalVisible , 
                             <Text style={styles.text}>Membres de la Liste</Text>
                             <View style={styles.listMembersSection}>
                                 {membersList.map(member => (
-                                    <ListMemberCard key={member.id} userId={member.id} />))}
+                                    <ListMemberCard key={member.id} user={member} />))}
                             </View>
                         </View>
                         <View>
                             <Text style={styles.text}>Votre Famille</Text>
                             <View style={styles.familyMembersSection}>
                                 {familyMembersList.map(member => (
-                                    <ListMemberCard key={member.id} userId={member.id} />))}
+                                    <ListMemberCard key={member.id} user={member} />))}
                             </View>
                         </View>
 

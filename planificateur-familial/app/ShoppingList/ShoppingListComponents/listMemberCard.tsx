@@ -17,22 +17,23 @@ import {ShoppingListItem} from '../ShoppingListTypes/shoppingListsTypes';
 import ConfirmDeleteModal from "@/components/modal/confirmDeleteModal";
 import {doc, getDoc} from "@firebase/firestore";
 import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
+import {User} from "@/types/user";
 
 
-const ListMemberCard: React.FC<{ userId : string }> = ({ userId }) => {
-    const ownerCard = FIREBASE_AUTH.currentUser?.uid == userId;
-
+const ListMemberCard: React.FC<{ user : User }> = ({ user }) => {
+    const ownerCard = FIREBASE_AUTH.currentUser?.uid == user.id;
+    const tag = ownerCard ? " (Vous)" : null;
 
 
 
     return (
         <View style={styles.cardWrapper}>
             <View style={styles.userDataContainer}>
-                <Image style={styles.pp} source={require("@/assets/images/emptyProfilePicture.png")}></Image>
-                <Text> Test</Text>
+                <Text style={styles.text}>{user.name}{tag}</Text>
             </View>
-            {ownerCard && <TouchableOpacity style={styles.button}>
+            {!ownerCard && <TouchableOpacity style={styles.button}>
                 <View style={styles.buttonIcon}></View>
+                <View style={[styles.buttonIcon, { transform: [{ rotate: '90deg' }] }]}></View>
             </TouchableOpacity>}
         </View>
 
@@ -72,12 +73,18 @@ const styles = StyleSheet.create({
         marginRight:3
     },
     buttonIcon: {
+        marginTop:13,
+        position:"absolute",
         width:11,
         height:3,
         borderRadius:1,
         backgroundColor:"white",
         alignSelf:"center",
         margin:"auto"
+    },
+    text: {
+        fontFamily:"Poppins_SemiBold",
+        marginTop:3
     }
 
 
