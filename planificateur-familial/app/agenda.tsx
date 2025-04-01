@@ -9,7 +9,9 @@ import {
     SafeAreaView,
     Modal,
     Platform,
-    StatusBar
+    StatusBar,
+    Image,
+    Dimensions
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +20,10 @@ import { FIREBASE_AUTH, FIREBASE_FIRESTORE } from '@/FirebaseConfig';
 import { collection, doc, setDoc, getDocs, deleteDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { router } from 'expo-router';
+
+const ScreenWidth = Dimensions.get('window').width;
+const ScreenHeight = Dimensions.get('window').height;
 
 
 
@@ -67,7 +73,7 @@ const AgendaScreen = () => {
       } else if (timestamp?.seconds) {
           return new Timestamp(timestamp.seconds, timestamp.nanoseconds).toDate();
       }
-      return new Date(); // Fallback
+      return new Date();  
   };
 
     const fetchTasks = async () => {
@@ -206,6 +212,7 @@ const AgendaScreen = () => {
         }, {} as Record<string, any>);
 
         return (
+            
             <Calendar
                 current={selectedDate || moment().format('YYYY-MM-DD')}
                 onDayPress={handleDateSelect}
@@ -294,7 +301,18 @@ const AgendaScreen = () => {
     };
 
     return (
+      
         <LinearGradient colors={['#4FE2FF', '#004B5A', '#002C35']} style={styles.gradientBackground}>
+            <TouchableOpacity onPress={() => router.push('..')} style={[{zIndex: 4}, {position: 'absolute'}]}>
+                              <LinearGradient
+                                  colors={['#4FE2FF', '#4FE2FF']}
+                                  style={styles.buttonWrap}
+                                  start={{x: 1, y: -0.2}}
+                                  end={{x: 0, y: 1}}
+                              >
+                                  <Image source={require("@/assets/images/arrowLeft.png")}/>
+                              </LinearGradient>
+            </TouchableOpacity>
             <SafeAreaView style={styles.container}>
                 {renderScreen()}
                 <Modal visible={isModalVisible} animationType="slide" transparent={true}>
@@ -401,6 +419,7 @@ const styles = StyleSheet.create({
     },
     gradientBackground: {
         flex: 1,
+        marginTop: 25,
     },
     header: {
         fontSize: 24,
@@ -478,9 +497,10 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     editButtonText: {
-        color: '#002C35',
+        color: 'white',
         fontSize: 12,
         fontWeight: 'bold',
+
     },
     deleteButtonText: {
         color: '#ffffff',
@@ -576,8 +596,9 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     backButtonText: {
-        color: '#4FE2FF',
+        color: 'white',
         fontSize: 16,
+        fontWeight: 'bold',
     },
 
     timeInput: {
@@ -590,6 +611,15 @@ const styles = StyleSheet.create({
       color: '#ffffff',
       fontSize: 16,
       textAlign: 'center',
+  },
+  buttonWrap: {
+    height: 60,
+    width: 80,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 4,
+    marginTop: ScreenHeight * 0.019,
+    zIndex: 7,
   },
 });
 
