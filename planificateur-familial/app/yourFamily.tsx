@@ -239,7 +239,7 @@ const YourFamily = () => {
 
             </View>
             <View style={styles.bottomContainer}>
-                <FamilyMember  name={owner.name} pp={owner.profilePicture}/>
+                <FamilyMember  name={owner.name + " (vous)"} pp={owner.profilePicture}/>
                 {familyMembers.map((member, index) => (
                     <FamilyMember key={index} name={member.name} pp={member.profilePicture}/>
                 ))}

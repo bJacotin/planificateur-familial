@@ -254,12 +254,15 @@ const YourFamily = () => {
                     <Text style={styles.familyNameText}>{name} 
                    
                     </Text> 
+                    
                     <TouchableOpacity onPress={toggleModal} style={styles.imgWrapEdit} >
                     <Image source={require('@/assets/images/edit-pen-icon.jpg')} style={styles.imgEdit}/>
                     </TouchableOpacity>
                     <Modal visible={modalVisible} transparent={true} animationType="fade">
                     <View style={styles.modalContainer}>
+                        
                         <View style={styles.modalContent}>
+                            
                             <Text style={styles.modalTitle}>Inserer le nouveau nom de votre famille</Text>
                             <View style={styles.modalCode}>
                                 <TextInput
@@ -284,11 +287,13 @@ const YourFamily = () => {
                     </Modal>
                 </View>
 
-
+                
                 <Text style={styles.membersText}>{familyMembers.length + 1} membres</Text>
 
             </View>
             <View style={styles.bottomContainer}>
+            <FamilyMember  name={owner.name + " (vous)"} pp={owner.profilePicture}/>
+                
             {familyMembers.map((member, index) => (
                 <FamilyMemberEdit
         key={index}
