@@ -67,7 +67,7 @@ export default function Index() {
 
     const [userPP, setUserPP] = useState<string>('');
     const fetchProfilePicture = async () => {
-        return''
+        
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log('test')
         if (FIREBASE_AUTH.currentUser.uid) {
