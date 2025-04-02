@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {createShoppingList, createShoppingListItem} from "@/app/ShoppingList/shoppingListController";
 import {ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
+import QuantityModal from "@/app/ShoppingList/ShoppingListComponents/quantityModal";
 const ScreenWidth = Dimensions.get('window').width;
 
 interface AddTaskModalProps {
@@ -25,7 +26,11 @@ interface AddTaskModalProps {
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisible, listId }) => {
     const [itemName, setItemName] = useState("");
-
+    const [quantity, setQuantity] = useState(1);
+    const [quantityModalVisible,setQuantityModalVisible] = useState(false);
+    const handleQuantityPress = () => {
+        setQuantityModalVisible(true)
+    };
     const handleCreateItem = async () => {
         if (!itemName.trim()) {
             console.error("Le titre de la liste ne peut pas être vide.");
@@ -41,7 +46,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
             const newItem: ShoppingListItem = {
                 id: Date.now().toString(),
                 name: itemName,
-                quantity: 1,
+                quantity: quantity,
                 checked: false,
             };
             const itemId = await createShoppingListItem(listId, newItem);
@@ -80,7 +85,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                             style={{ width: '100%', height: 10 }}
                         />
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.parameterContainer}>
+                            <TouchableOpacity style={styles.parameterContainer} onPress={() => handleQuantityPress()}>
                                 <Image style={styles.iconScrollList} source={require("@/assets/images/familyIcon.png")} />
                                 <Text style={styles.textScrollList}>Quantité</Text>
                             </TouchableOpacity>
@@ -91,6 +96,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                     </KeyboardAvoidingView>
                 </View>
             </TouchableWithoutFeedback>
+            <QuantityModal modalVisible={quantityModalVisible}
+                           setModalVisible={setQuantityModalVisible}
+                           quantity={quantity}
+                           setQuantity={setQuantity}
+            ></QuantityModal>
         </Modal>
     );
 };
