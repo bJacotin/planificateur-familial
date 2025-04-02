@@ -20,7 +20,7 @@ import {FIREBASE_AUTH, FIREBASE_FIRESTORE} from "@/FirebaseConfig";
 import {User} from "@/types/user";
 
 
-const ListMemberCard: React.FC<{ user : User }> = ({ user }) => {
+const ListMemberCard: React.FC<{ user : User, handler : () => void }> = ({ user, handler}) => {
     const ownerCard = FIREBASE_AUTH.currentUser?.uid == user.id;
     const tag = ownerCard ? " (Vous)" : null;
 
@@ -31,9 +31,9 @@ const ListMemberCard: React.FC<{ user : User }> = ({ user }) => {
             <View style={styles.userDataContainer}>
                 <Text style={styles.text}>{user.name}{tag}</Text>
             </View>
-            {!ownerCard && <TouchableOpacity style={styles.button}>
+            {!ownerCard && <TouchableOpacity style={styles.button} onPress={handler}>
                 <View style={styles.buttonIcon}></View>
-                <View style={[styles.buttonIcon, { transform: [{ rotate: '90deg' }] }]}></View>
+
             </TouchableOpacity>}
         </View>
 
@@ -69,22 +69,25 @@ const styles = StyleSheet.create({
         width:29,
         height:29,
         borderRadius:10,
-        backgroundColor:"#004B5A",
-        marginRight:3
+        backgroundColor:"#ffffff",
+        marginRight:3,
+        borderColor:"#004B5A",
+        borderWidth:3,
     },
     buttonIcon: {
-        marginTop:13,
         position:"absolute",
         width:11,
         height:3,
         borderRadius:1,
-        backgroundColor:"white",
+        backgroundColor:"#004B5A",
         alignSelf:"center",
-        margin:"auto"
+        margin:"auto",
+        marginTop:10
     },
     text: {
         fontFamily:"Poppins_SemiBold",
-        marginTop:3
+        marginTop:3,
+
     }
 
 

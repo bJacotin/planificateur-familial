@@ -3,7 +3,7 @@ import {addDoc, collection, deleteDoc, getDocs, query, serverTimestamp, where} f
 import {useEffect, useState} from "react";
 import {arrayRemove, arrayUnion, doc, getDoc, onSnapshot, updateDoc} from "@firebase/firestore";
 
-import {ShoppingList,ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
+import {ShoppingList, ShoppingListDto, ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
 import {User} from "@/types/user";
 
 
@@ -17,11 +17,11 @@ const createShoppingList = async (listName: string, members: User[], owner:User)
     try {
         const db = FIREBASE_FIRESTORE;
         const shoppingListRef = collection(db, "shoppingLists");
-
-        const newList: ShoppingList = {
+        const memberIds = members.map(member => member.id);
+        const newList: ShoppingListDto = {
             name: listName,
-            members: members,
-            owner: owner,
+            members: memberIds,
+            owner: owner.id,
             createdAt: serverTimestamp(),
             items: items
         };
@@ -53,7 +53,7 @@ const getUserShoppingLists = async (): Promise<ShoppingList[]> => {
         const querySnapshot = await getDocs(q);
 
         const shoppingLists: ShoppingList[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as ShoppingList);
-5
+
         return shoppingLists;
     } catch (error) {
         console.error("Erreur lors de la récupération des listes de courses :", error);
@@ -73,14 +73,16 @@ const useShoppingLists = () => {
         const shoppingListRef = collection(db, "shoppingLists");
         const q = query(shoppingListRef, where("members", "array-contains", auth.currentUser.uid));
 
-        // Écoute en temps réel les mises à jour Firestore
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const lists: ShoppingList[] = querySnapshot.docs.map(doc => ({
+
+        const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+            const listsQuery: ShoppingListDto[] = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            }) as ShoppingList);
+            }) as ShoppingListDto);
 
-            setShoppingLists(lists);
+            const lists = dtoToShoppingLists(listsQuery)
+
+            setShoppingLists(await lists);
             setLoading(false);
         });
 
@@ -90,6 +92,35 @@ const useShoppingLists = () => {
     return { shoppingLists, loading };
 };
 
+const dtoToShoppingLists = async (dtoShoppingLists: ShoppingListDto[]): Promise<ShoppingList[]> => {
+    try {
+        const usersSnapshot = await getDocs(collection(FIREBASE_FIRESTORE, "users"));
+        const users: User[] = usersSnapshot.docs.map(doc => doc.data() as User);
+
+
+        return dtoShoppingLists.map(dto => {
+
+            const members = dto.members.map(memberId => {
+                return users.find(user => user.id === memberId);
+            }) as User[];
+
+
+            const owner = users.find(user => user.id === dto.owner);
+
+            return {
+                id: dto.id,
+                name: dto.name,
+                members: members,
+                owner: owner,
+                createdAt: dto.createdAt ,
+                items: dto.items,
+            };
+        });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des utilisateurs ou de la conversion des listes de courses :", error);
+        throw error;
+    }
+};
 const useShoppingListById = (listId: string) => {
     const [shoppingList, setShoppingList] = useState<ShoppingList | null>(null);
     const [loading, setLoading] = useState<boolean>(true);

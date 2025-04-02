@@ -15,7 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import {createShoppingList} from "@/app/ShoppingList/shoppingListController";
 import MemberCard from "@/app/ShoppingList/ShoppingListComponents/listMemberCard";
-import {doc, getDoc} from "@firebase/firestore";
+
 import FamilyMemberCard from "@/app/ShoppingList/ShoppingListComponents/familyMemberCard";
 import ListMemberCard from "@/app/ShoppingList/ShoppingListComponents/listMemberCard";
 import {User} from "@/types/user";
@@ -32,10 +32,29 @@ interface AddMembersModalProps {
 
 const AddMembersModal: React.FC<AddMembersModalProps> = ({membersModalVisible , setMembersModalVisible, familyMembersList, membersList,setMembersList, setFamilyMembersList}) => {
 
+    const addToMember = (member: User) => {
 
-    const handleClosePress =() => {
+        setMembersList((prevMembers) => [...prevMembers, member]);
+        setFamilyMembersList((prevFamilyMembers) =>
+            prevFamilyMembers.filter((familyMember) => familyMember.id !== member.id)
+        );
+    };
 
-    }
+    const removeFromMember = (member: User) => {
+        setMembersList((prevMembers) =>
+            prevMembers.filter((m) => m.id !== member.id)
+        );
+        setFamilyMembersList((prevFamilyMembers) => [...prevFamilyMembers, member]);
+    };
+    const handleConfirmPress = () => {
+        setMembersModalVisible(false);
+    };
+
+    const handleCancelPress = () => {
+        setMembersList([]);
+        setFamilyMembersList([]);
+        setMembersModalVisible(false);
+    };
 
     return (
         <Modal
@@ -55,23 +74,23 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({membersModalVisible , 
                             <Text style={styles.text}>Membres de la Liste</Text>
                             <View style={styles.listMembersSection}>
                                 {membersList.map(member => (
-                                    <ListMemberCard key={member.id} user={member} />))}
+                                    <ListMemberCard key={member.id} user={member} handler={() =>removeFromMember(member)} />))}
                             </View>
                         </View>
                         <View>
                             <Text style={styles.text}>Votre Famille</Text>
                             <View style={styles.familyMembersSection}>
                                 {familyMembersList.map(member => (
-                                    <ListMemberCard key={member.id} user={member} />))}
+                                    <FamilyMemberCard key={member.id} user={member} handler={() =>addToMember(member)}/>))}
                             </View>
                         </View>
 
 
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.cancelButtonWrapper} onPress={()=> setMembersModalVisible(false)}>
+                            <TouchableOpacity style={styles.cancelButtonWrapper} onPress={()=> handleCancelPress()}>
                                 <Text style={styles.cancelText}>Annuler</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.deleteButtonWrapper} onPress={() => handleClosePress()}>
+                            <TouchableOpacity style={styles.deleteButtonWrapper} onPress={() => handleConfirmPress()}>
                                 <Text style={styles.deleteText}>Confirmer</Text>
                             </TouchableOpacity>
                         </View>
