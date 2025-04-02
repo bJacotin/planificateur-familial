@@ -6,6 +6,14 @@ export interface ShoppingListItem {
     quantity: number;
     checked: boolean;
 }
+export interface ShoppingListDto {
+    id?: string;
+    name: string;
+    members: String[];
+    owner: String;
+    createdAt: any;
+    items: ShoppingListItem[];
+}
 
 export interface ShoppingList {
     id?: string;

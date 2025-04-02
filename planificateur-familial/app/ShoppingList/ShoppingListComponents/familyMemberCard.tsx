@@ -18,7 +18,7 @@ import {FIREBASE_AUTH} from "@/FirebaseConfig";
 import {User} from "@/types/user";
 const ScreenWidth = Dimensions.get('window').width;
 
-const FamilyMemberCard: React.FC<{ user : User }> = ({ user }) => {
+const FamilyMemberCard: React.FC<{ user : User, handler : () => void }> = ({ user, handler }) => {
 
 
 
@@ -28,12 +28,11 @@ const FamilyMemberCard: React.FC<{ user : User }> = ({ user }) => {
 
                 <Text>{user.name}</Text>
             </View>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handler}>
                 <View style={styles.buttonIcon}></View>
-
+                <View style={[styles.buttonIcon, { transform: [{ rotate: '90deg' }] }]}></View>
             </TouchableOpacity>
         </View>
-
     );
 };
 
@@ -65,20 +64,23 @@ const styles = StyleSheet.create({
         width:29,
         height:29,
         borderRadius:10,
-        backgroundColor:"#ffffff",
-        marginRight:3,
-        borderColor:"#004B5A",
-        borderWidth:3,
+        backgroundColor:"#004B5A",
+        marginRight:3
     },
     buttonIcon: {
+        marginTop:13,
         position:"absolute",
         width:11,
         height:3,
         borderRadius:1,
-        backgroundColor:"#004B5A",
+        backgroundColor:"white",
         alignSelf:"center",
-        margin:"auto",
-        marginTop:10
+        margin:"auto"
+    },
+    text: {
+        fontFamily:"Poppins_SemiBold",
+        marginTop:3,
+
     }
 
 
