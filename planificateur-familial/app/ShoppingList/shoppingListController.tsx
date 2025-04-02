@@ -244,4 +244,60 @@ const deleteList = async (listId: string) => {
         console.error("Erreur lors de la suppression de la liste :", error);
     }
 };
+
+export const listenToCategories = (listId: string, callback: (categories: any[]) => void) => {
+    const listRef = doc(FIREBASE_FIRESTORE, "shoppingLists", listId);
+
+    const unsubscribe = onSnapshot(listRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const listData = snapshot.data();
+            const categories = listData.categories || [];
+            callback(categories);
+        } else {
+            console.log("Aucune liste trouvée avec cet ID");
+            callback([]);
+        }
+    });
+
+    return unsubscribe;
+};
+
+export const createCategory = async (name: string, listId: string) => {
+    try {
+        if (!name.trim()) {
+            console.error("Le nom de la catégorie ne peut pas être vide.");
+            return;
+        }
+
+        const listRef = doc(FIREBASE_FIRESTORE, "shoppingLists", listId);
+        const docSnap = await getDoc(listRef);
+
+        if (!docSnap.exists()) {
+            console.error("Liste non trouvée !");
+            return;
+        }
+
+        const listData = docSnap.data();
+        const categories = listData.categories || [];
+
+        const categoryExists = categories.some(
+            (cat: { name: string }) => cat.name.toLowerCase() === name.toLowerCase()
+        );
+
+        if (categoryExists) {
+            console.error("Une catégorie avec ce nom existe déjà !");
+            return;
+        }
+
+
+        const newCategory = { id: Date.now().toString(), name };
+        await updateDoc(listRef, {
+            categories: arrayUnion(newCategory),
+        });
+
+        console.log(`Catégorie '${name}' ajoutée avec succès !`);
+    } catch (error) {
+        console.error("Erreur lors de la création de la catégorie :", error);
+    }
+};
 export { createShoppingList, getUserShoppingLists , useShoppingLists, useShoppingListById, createShoppingListItem, deleteList,deleteItem, toggleItemChecked,listenToItemChecked};

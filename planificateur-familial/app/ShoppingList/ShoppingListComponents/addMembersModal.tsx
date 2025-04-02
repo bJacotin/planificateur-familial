@@ -34,16 +34,22 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({membersModalVisible , 
 
     const addToMember = (member: User) => {
 
+        // @ts-ignore
         setMembersList((prevMembers) => [...prevMembers, member]);
+        // @ts-ignore
         setFamilyMembersList((prevFamilyMembers) =>
+            // @ts-ignore
             prevFamilyMembers.filter((familyMember) => familyMember.id !== member.id)
         );
     };
 
     const removeFromMember = (member: User) => {
+        // @ts-ignore
         setMembersList((prevMembers) =>
+            // @ts-ignore
             prevMembers.filter((m) => m.id !== member.id)
         );
+        // @ts-ignore
         setFamilyMembersList((prevFamilyMembers) => [...prevFamilyMembers, member]);
     };
     const handleConfirmPress = () => {

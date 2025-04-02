@@ -16,47 +16,47 @@ import {
 
 import {FIREBASE_AUTH} from "@/FirebaseConfig";
 import {User} from "@/types/user";
+import {Category} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
 const ScreenWidth = Dimensions.get('window').width;
 
-const FamilyMemberCard: React.FC<{ user : User, handler : () => void }> = ({ user, handler }) => {
+const CategoryCard: React.FC<{selectedCategory: Category|null, category: Category, setCategory : (category: Category | null) => void }> = ({ category, setCategory,selectedCategory }) => {
 
-
-
+    const checked = selectedCategory ? category.id === selectedCategory.id : false;
+    const handleCheckPress = () => {
+        if (checked) {
+            setCategory(null)
+        } else {
+            setCategory(category)
+        }
+    };
     return (
         <View style={styles.cardWrapper}>
-            <View style={styles.userDataContainer}>
-
-                <Text>{user.name}</Text>
+            <View style={styles.categoryDataContainer}>
+                <Text>{category.name}</Text>
             </View>
-            <TouchableOpacity style={styles.button} onPress={handler}>
-                <View style={styles.buttonIcon}></View>
-                <View style={[styles.buttonIcon, { transform: [{ rotate: '90deg' }] }]}></View>
+            <TouchableOpacity style={styles.emptyButton} onPress={() => handleCheckPress()}>
+                {!checked && <View style={styles.innerButton} />}
             </TouchableOpacity>
         </View>
     );
 };
 
 
-export default FamilyMemberCard;
+export default CategoryCard;
 
 const styles = StyleSheet.create({
     cardWrapper: {
-        width:(ScreenWidth-(3*30))/2.2,
+        width:"100%",
         height:43,
         borderRadius:16,
         borderWidth:4,
         borderColor:"#004B5A",
-        marginVertical:6,
+        marginVertical:4,
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems:"center"
     },
-    pp: {
-        width:32,
-        height:32,
-        borderRadius:30
-    },
-    userDataContainer: {
+    categoryDataContainer: {
         flexDirection:"row",
         marginLeft:10
     },
@@ -83,6 +83,24 @@ const styles = StyleSheet.create({
         alignSelf:"center",
         margin:"auto"
     },
+    emptyButton: {
+        width:24,
+        height:24,
+        borderRadius:9,
+        borderWidth:3,
+        borderColor:"white",
+        backgroundColor:"#3FC3DD",
+        justifyContent:"center",
+        alignItems:"center",
+        alignSelf:"center",
+        marginRight:20
+    },
+    innerButton: {
+        width:14,
+        height:14,
+        borderRadius:4,
+        backgroundColor:"white"
+    }
 
 
 });
