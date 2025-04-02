@@ -5,6 +5,7 @@ export interface ShoppingListItem {
     name: string;
     quantity: number;
     checked: boolean;
+    category:string | null;
 }
 export interface ShoppingListDto {
     id?: string;
@@ -22,5 +23,9 @@ export interface ShoppingList {
     owner: User;
     createdAt: any;
     items: ShoppingListItem[];
+}
+export interface Category {
+    id?: string;
+    name: string;
 }
 

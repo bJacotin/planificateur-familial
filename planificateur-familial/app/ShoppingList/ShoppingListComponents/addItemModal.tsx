@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {createShoppingList, createShoppingListItem} from "@/app/ShoppingList/shoppingListController";
 import {ShoppingListItem} from "@/app/ShoppingList/ShoppingListTypes/shoppingListsTypes";
 import QuantityModal from "@/app/ShoppingList/ShoppingListComponents/quantityModal";
+import CategoryModal from "@/app/ShoppingList/ShoppingListComponents/categoryModal";
 const ScreenWidth = Dimensions.get('window').width;
 
 interface AddTaskModalProps {
@@ -27,7 +28,9 @@ interface AddTaskModalProps {
 const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisible, listId }) => {
     const [itemName, setItemName] = useState("");
     const [quantity, setQuantity] = useState(1);
+    const [category, setCategory] = useState(null)
     const [quantityModalVisible,setQuantityModalVisible] = useState(false);
+    const [categoryModalVisible,setCategoryModalVisible] = useState(false);
     const handleQuantityPress = () => {
         setQuantityModalVisible(true)
     };
@@ -48,6 +51,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                 name: itemName,
                 quantity: quantity,
                 checked: false,
+                category: category,
             };
             const itemId = await createShoppingListItem(listId, newItem);
             if (itemId) {
@@ -59,6 +63,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
             console.error("Erreur lors de la création de la liste :", error);
         }
     };
+
+    function handleCategoryPress() {
+        setCategoryModalVisible(true)
+    }
+
     return (
         <Modal
             statusBarTranslucent={true}
@@ -86,8 +95,10 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                         />
                         <View style={styles.buttonContainer}>
                             <TouchableOpacity style={styles.parameterContainer} onPress={() => handleQuantityPress()}>
-                                <Image style={styles.iconScrollList} source={require("@/assets/images/familyIcon.png")} />
                                 <Text style={styles.textScrollList}>Quantité</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.parameterContainer} onPress={() => handleCategoryPress()}>
+                                <Text style={styles.textScrollList}>Catégorie</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.confirmContainer} onPress={() => handleCreateItem()}>
                                 <Text style={styles.confirmText}>Valider</Text>
@@ -101,6 +112,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                            quantity={quantity}
                            setQuantity={setQuantity}
             ></QuantityModal>
+            <CategoryModal listId={listId} category={category} setCategory={setCategory} setModalVisible={setCategoryModalVisible} modalVisible={categoryModalVisible}></CategoryModal>
         </Modal>
     );
 };
@@ -138,7 +150,7 @@ const styles = StyleSheet.create({
     parameterContainer: {
         borderColor:'#004B5A',
         height:50,
-        width:(ScreenWidth-(3*30))/2,
+        width:(ScreenWidth-(3*30))/2.7,
         justifyContent:"flex-start",
         alignItems:'center',
         borderRadius:15,
@@ -150,13 +162,15 @@ const styles = StyleSheet.create({
         fontFamily:"Poppins_Medium",
         marginLeft:10,
         marginRight:10,
-        marginTop:4
+        marginTop:4,
+        textAlign:"center",
+        marginHorizontal:"auto"
     },
     confirmContainer: {
         borderColor:'#004B5A',
         backgroundColor:'#004B5A',
         height:50,
-        width:(ScreenWidth-(3*30))/2,
+        width:(ScreenWidth-(3*30))/3,
         justifyContent:"center",
         alignItems:'center',
         borderRadius:15,
