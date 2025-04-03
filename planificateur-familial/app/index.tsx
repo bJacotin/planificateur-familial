@@ -50,11 +50,10 @@ export default function Index() {
     const pathname = usePathname();
     useEffect(() => {
 
-        if (pathname=== '/') {
+        if (pathname === '/') {
             fetchProfilePicture();
         }
     }, [pathname]);
-
 
 
     useEffect(() => {
@@ -64,13 +63,39 @@ export default function Index() {
         }
 
     }, []);
+    const isInAFamily = async () => {
+        const auth = FIREBASE_AUTH;
 
+        if (!auth.currentUser) {
+            throw new Error("L'utilisateur n'est pas connecté.");
+        }
+
+
+        const userRef = doc(FIREBASE_FIRESTORE, "users", auth.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+
+
+        const userData = userSnap.data();
+        // @ts-ignore
+        if (userData.families && userData.families.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    };
 
     const [userPP, setUserPP] = useState<string>('');
+    const [familyPath,setFamilyPath] =useState("/yourFamily")
+
     const fetchProfilePicture = async () => {
+<<<<<<< HEAD
         
+=======
+        const familyPath = await isInAFamily() ? "/yourFamily" : "/family"
+        setFamilyPath(familyPath)
+>>>>>>> 9c17d60 (Last commit)
         await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log('test')
         if (FIREBASE_AUTH.currentUser.uid) {
             const docRef = doc(FIREBASE_FIRESTORE, "users", FIREBASE_AUTH.currentUser.uid);
             const docSnap = await getDoc(docRef);
@@ -92,7 +117,7 @@ export default function Index() {
 
 
                     if (pp) {
-                        console.log("Image récupérée : ", pp);
+
                         setUserPP(pp);
                     } else {
                         console.log("Aucune image de profil trouvée.");
@@ -107,14 +132,13 @@ export default function Index() {
     };
 
 
-
     return (
         <LinearGradient
             colors={['#4FE2FF', '#004B5A', '#002C35']}
             locations={[0, 0.8, 1]}
             start={{x: 0.5, y: 0}}
             end={{x: 0.5, y: 1}}
-            style={{height: ScreenHeight * 0.36,marginTop:25}}
+            style={{height: ScreenHeight * 0.36, marginTop: 25}}
         >
             <StatusBar style="dark" backgroundColor="#4FE2FF"/>
             <Image source={require('@/assets/images/Group20.png')} style={styles.imgTukki}/>
@@ -130,36 +154,34 @@ export default function Index() {
 
             <View style={styles.content}>
                 <Text style={styles.hello}>Bonjour, {name} !</Text>
-                <View style={styles.familyContainer}>
+                <TouchableOpacity onPress={() =>router.push("/yourFamily")} style={styles.familyContainer}>
                     <View style={styles.familyNameContainer}>
                         <Text style={styles.familyNameText}>Ma famille</Text>
                     </View>
                     <View style={styles.familyPictureContainer}>
                         <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
                     </View>
-                    <View style={[styles.familyPictureContainer,{zIndex:-2}]}>
+                    <View style={[styles.familyPictureContainer, {zIndex: -2}]}>
                         <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
                     </View>
-                    <View style={[styles.familyPictureContainer,{zIndex:-3}]}>
+                    <View style={[styles.familyPictureContainer, {zIndex: -3}]}>
                         <ProfilePicture image={require('@/assets/images/emptyProfilePicture.png')}/>
                     </View>
-                </View>
+                </TouchableOpacity>
 
                 <Text style={styles.servicesText}>Vos services </Text>
                 <View style={styles.servicesIcons}>
-                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List" route="/homeToDo"/>
+                    <IconServices image={require('@/assets/images/Todo.png')} title="ToDo List"
+                                  route="/ToDoList/ToDoListHome"/>
                     <IconServices image={require('@/assets/images/agenda.png')} title="Agenda" route="/agenda"/>
 
                 </View>
 
                 <View style={styles.servicesIcons}>
-
-                    <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={"/family"}/>
-                    <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course" route={"/ShoppingList/shoppingListHome"}/>
-
+                    <IconServices image={require('@/assets/images/familyIcon.png')} title="Famille" route={familyPath}/>
+                    <IconServices image={require('@/assets/images/shoppingCart.png')} title="Liste de Course"
+                                  route={"/ShoppingList/shoppingListHome"}/>
                 </View>
-
-
             </View>
         </LinearGradient>
     );

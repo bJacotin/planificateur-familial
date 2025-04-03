@@ -60,12 +60,6 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         marginLeft:10
     },
-
-    text: {
-        fontFamily:"Poppins_SemiBold",
-        marginTop:3,
-
-    },
     button: {
         width:29,
         height:29,
@@ -83,6 +77,11 @@ const styles = StyleSheet.create({
         alignSelf:"center",
         margin:"auto"
     },
+    text: {
+        fontFamily:"Poppins_SemiBold",
+        marginTop:3,
+
+    }
 
 
 });

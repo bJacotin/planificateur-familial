@@ -49,12 +49,12 @@ const ShoppingListHome = () => {
                 <ScrollView style={styles.listCardContainer}>
                     {loading ? (
                         <ActivityIndicator size="large" color="#4FE2FF" />
-                    ) : (
+                    ) : shoppingLists.length > 0? (
                         shoppingLists.map(list => <ListCard
                             key={list.id}
                             list={list}
                         />)
-                    )}
+                    ) : <Text style={styles.emptyMessage}>Aucune liste de course</Text>}
 
                 </ScrollView>
             </View>
@@ -141,6 +141,12 @@ const styles = StyleSheet.create({
         fontSize: 36,
         alignSelf: "center",
     },
-
+    emptyMessage: {
+        textAlign: 'center',
+        marginTop: 50,
+        fontFamily: 'Poppins_Medium',
+        fontSize: 16,
+        color: '#555'
+    }
 
 });

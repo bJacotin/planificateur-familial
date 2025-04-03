@@ -1,11 +1,14 @@
 import React from 'react'
-import {StyleSheet, View, Text, Image, Dimensions} from "react-native";
+import {StyleSheet, View, Text, Image, Dimensions, TouchableOpacity} from "react-native";
 
 type Props = {
     name: string;
 
     pp: string;
+    onRemove?: () => void;
 };
+
+
 
 const FamilyMember = ({name, pp}: Props) => {
     console.log(pp);
@@ -15,6 +18,7 @@ const FamilyMember = ({name, pp}: Props) => {
             <Image
                 style={styles.pp}
                 source={pp === '' ? require('@/assets/images/emptyProfilePicture.png') : {uri: pp}}
+
             />
             <View style={styles.taskDataContainer}>
                 <Text style={styles.name}>{name}</Text>
@@ -25,11 +29,49 @@ const FamilyMember = ({name, pp}: Props) => {
     )
 }
 
+const FamilyMemberEdit = ({ name, pp, onRemove }: Props) => {
+    return (
+        <View style={styles.memberWrapper}>
+            <Image
+                style={styles.pp}
+                source={pp === '' ? require('@/assets/images/emptyProfilePicture.png') : { uri: pp }}
+            />
+            <View style={[styles.taskDataContainer, { backgroundColor: '#E7E7E7' }]}>
+                <Text style={styles.name}>{name}</Text>
+            </View>
+
+            <TouchableOpacity style={styles.button} onPress={onRemove}>
+                <Image source={require('@/assets/images/cross.png')} style={styles.iconCross} />
+            </TouchableOpacity>
+        </View>
+    );
+};
+
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
 
+    button: {
+        height: 50,
+        width: 50,
+        borderRadius: 30,
+        backgroundColor: '#CFCFCF',
+        marginLeft: "auto",
+        marginRight: 10,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5,
+        opacity: 1,},
+
+        iconCross: {
+            width: 25,
+            height: 25,
+            opacity: 0.7,
+            
+        },
 
         memberWrapper: {
             marginTop: 12,
@@ -39,7 +81,7 @@ const styles = StyleSheet.create({
             borderBottomRightRadius: 35,
             borderBottomLeftRadius: 35,
             borderTopLeftRadius: 35,
-            borderTopRightRadius: 25,
+            borderTopRightRadius: 35,
             flexDirection: "row",
             alignSelf: "center",
             alignItems: "center",
@@ -54,7 +96,6 @@ const styles = StyleSheet.create({
             borderRadius: 30,
             marginLeft: 5,
             marginRight: 10,
-            backgroundColor: 'red'
 
 
         },
@@ -75,4 +116,4 @@ const styles = StyleSheet.create({
         }
     }
 )
-export default FamilyMember;
+export { FamilyMember, FamilyMemberEdit };
