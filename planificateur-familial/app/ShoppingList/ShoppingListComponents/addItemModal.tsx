@@ -46,12 +46,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                 console.error("Utilisateur non connecté.");
                 return;
             }
+            const categoryId = category ? category.id : null;
             const newItem: ShoppingListItem = {
                 id: Date.now().toString(),
                 name: itemName,
                 quantity: quantity,
                 checked: false,
-                category: category,
+                category: categoryId,
             };
             const itemId = await createShoppingListItem(listId, newItem);
             if (itemId) {
@@ -82,7 +83,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ modalVisible, setModalVisib
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         style={styles.modalView}
                     >
-                        <TextInput placeholder="Titre de la liste"
+                        <TextInput placeholder="Nom de l'item"
                                    style={styles.titleInput}
                                    value={itemName}
                                    onChangeText={setItemName}/>

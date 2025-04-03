@@ -39,7 +39,7 @@ const ItemCard: React.FC<{ listId : string, item: ShoppingListItem }> = ({ item,
             <View>
                 <Text style={styles.title}>{item.name}</Text>
                 <View style={styles.sizeBg}>
-                    <Text style={styles.size}>Qte :{item.quantity}</Text>
+                    <Text style={styles.size}>Qte : {item.quantity}</Text>
                 </View>
             </View>
             <TouchableOpacity style={styles.emptyButton} onPress={() => handleCheckPress()}>
@@ -64,11 +64,11 @@ const styles = StyleSheet.create({
         backgroundColor:"#3FC3DD",
         width:330,
         height:62,
-        marginTop:25,
         paddingLeft:36,
         elevation:5,
         flexDirection:"row",
-        justifyContent:"space-between"
+        justifyContent:"space-between",
+        marginBottom:25
     },
     arrow: {
         transform: [{ rotate: '180deg' }],

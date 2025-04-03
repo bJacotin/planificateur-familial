@@ -20,18 +20,37 @@ import {useShoppingListById} from "@/app/ShoppingList/shoppingListController";
 import {useLocalSearchParams} from "expo-router";
 import ItemCard from "@/app/ShoppingList/ShoppingListComponents/itemCard";
 import AddItemModal from "@/app/ShoppingList/ShoppingListComponents/addItemModal";
+import CategoryDropDownCard from "@/app/ShoppingList/ShoppingListComponents/categoryDropDown";
 
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 
 const ShoppingList = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
     const JSONparams = useLocalSearchParams();
-    const id = JSONparams.id
+    //@ts-ignore
+    const idList:string = JSONparams.id
 
-    const { shoppingList, loading } = useShoppingListById(id);
+    const { shoppingList, loading } = useShoppingListById(idList);
 
+    const groupedItems = shoppingList?.items.reduce((acc, item) => {
+        const category = item.category || 'Sans catégorie';
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(item);
+        return acc;
+    }, {} as Record<string, typeof shoppingList.items>);
 
+    const toggleCategory = (category: string) => {
+        setExpandedCategories(prev => ({
+            ...prev,
+            [category]: !prev[category]
+        }));
+    };
+
+    // @ts-ignore
     return (
         <LinearGradient
             colors={['#4FE2FF', '#004B5A', '#002C35']}
@@ -54,17 +73,31 @@ const ShoppingList = () => {
                 <ScrollView style={styles.listCardContainer}>
                     {loading ? (
                         <ActivityIndicator size="large" color="#4FE2FF" />
-                    ) : shoppingList.items.length > 0 ? (
-                        shoppingList.items.map((item) => <ItemCard key={item.id} listId={id} item={item} />)
+                    ) : groupedItems && Object.keys(groupedItems).length > 0 ? (
+                        Object.entries(groupedItems).map(([category, items]) => (
+                            <View key={category}>
+                                <CategoryDropDownCard
+                                    listId={idList}
+                                    items={items}
+                                    categoryId={category}
+                                    dropped={expandedCategories[category]}
+                                    setDropped={() => toggleCategory(category)}
+                                />
+                                {expandedCategories[category] && items.map((item) => (
+                                    <ItemCard key={item.id} listId={idList} item={item} />
+                                ))}
+                            </View>
+                        ))
                     ) : (
-                        <Text>Aucun item dans cette liste</Text>
+                        <Text style={styles.emptyMessage}>Aucun item dans cette liste</Text>
                     )}
                 </ScrollView>
             </View>
             <TouchableOpacity style={styles.newTaskButton} onPress={(): void => setModalVisible(true)}>
                 <Text style={styles.buttonLabel}>+</Text>
             </TouchableOpacity>
-            <AddItemModal listId={id} modalVisible={modalVisible} setModalVisible={setModalVisible}></AddItemModal>
+
+            <AddItemModal listId={idList} modalVisible={modalVisible} setModalVisible={setModalVisible}></AddItemModal>
         </LinearGradient>
     );
 };
@@ -121,7 +154,8 @@ const styles = StyleSheet.create({
     },
     listCardContainer: {
         paddingTop:25,
-        width:ScreenWidth
+        width:ScreenWidth,
+        borderTopLeftRadius:35
     },
     newTaskButton: {
         position: "absolute",
@@ -143,6 +177,13 @@ const styles = StyleSheet.create({
         fontSize: 36,
         alignSelf: "center",
     },
+    emptyMessage: {
+        textAlign: 'center',
+        marginTop: 50,
+        fontFamily: 'Poppins_Medium',
+        fontSize: 16,
+        color: '#555'
+    }
 
 
 });
